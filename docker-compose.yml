@@ -1,0 +1,39 @@
+services:
+  db:
+    container_name: symfony-t-price-checker-api-db
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-tPriceChecker}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tPriceChecker}
+      POSTGRES_USER: ${POSTGRES_USER:-tPriceChecker}
+    volumes:
+      - database_data:/var/lib/postgresql/data:rw
+    ports:
+      - "5432:5432"
+
+  php:
+    container_name: symfony-t-price-checker-api-php
+    build:
+      context: ./docker/php-fpm
+    volumes:
+      - ./app:/var/www/app
+    environment:
+      XDEBUG_CONFIG: 'idekey=PHPSTORM remote_host=host.docker.internal remote_port=9000 remote_autostart=1 remote_enable=1 remote_mode=req remote_connect_back=0'
+      PHP_IDE_CONFIG: 'serverName=tPriceChecker'
+    expose:
+      - 9000
+
+  nginx:
+    container_name: symfony-t-price-checker-api-nginx
+    build:
+      context: ./docker/nginx
+    volumes:
+      - ./app:/var/www/app
+    ports:
+      - "80:80"
+      - "443:443"
+
+
+volumes:
+  database_data:

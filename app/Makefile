@@ -1,0 +1,7 @@
+cs-fix:
+	php-cs-fixer fix --diff -v --using-cache=no src
+	php-cs-fixer fix --diff -v --using-cache=no tests
+test:
+	bin/phpunit
+cover:
+	XDEBUG_MODE=coverage bin/phpunit  --coverage-html="coverage"
