@@ -1,14 +1,14 @@
 services:
   db:
     container_name: symfony-t-price-checker-api-db
-    image: postgres:15
+    image: postgres:18
     restart: always
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-tPriceChecker}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tPriceChecker}
       POSTGRES_USER: ${POSTGRES_USER:-tPriceChecker}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tPriceChecker}
     volumes:
-      - database_data:/var/lib/postgresql/data:rw
+      - pgdata:/var/lib/postgresql:rw
     ports:
       - "5432:5432"
 
@@ -36,4 +36,4 @@ services:
 
 
 volumes:
-  database_data:
+  pgdata:
