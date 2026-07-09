@@ -5,3 +5,5 @@ test:
 	bin/phpunit
 cover:
 	XDEBUG_MODE=coverage bin/phpunit  --coverage-html="coverage"
+php:
+	docker exec -it symfony-t-price-checker-api-php bash
