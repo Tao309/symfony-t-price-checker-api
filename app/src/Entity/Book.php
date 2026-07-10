@@ -76,7 +76,7 @@ class Book implements UserAwareInterface
 
     #[ORM\ManyToOne(inversedBy: 'books')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $user = null;
+    private ?User $userCreated = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $dateUpdated = null;

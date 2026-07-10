@@ -6,14 +6,14 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 trait UserAwareTrait
 {
-    public function getUser(): ?UserInterface
+    public function getUserCreated(): ?UserInterface
     {
-        return $this->user;
+        return $this->userCreated;
     }
 
-    public function setUser(?UserInterface $user): static
+    public function setUserCreated(?UserInterface $userCreated): static
     {
-        $this->user = $user;
+        $this->userCreated = $userCreated;
 
         return $this;
     }

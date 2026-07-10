@@ -18,7 +18,7 @@ class UserAwareListener
         $user = $this->security->getUser();
 
         if ($user !== null) {
-            $entity->setUser($user);
+            $entity->setUserCreated($user);
         }
     }
 }
