@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SourceProductRepository::class)]
 #[ORM\Table(options: ['comment' => 'Источник товара'])]
+#[ORM\HasLifecycleCallbacks]
 class SourceProduct
 {
     use DateUpdatedTimestampTrait, DateCreatedTimestampTrait;

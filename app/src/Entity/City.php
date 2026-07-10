@@ -4,14 +4,16 @@ namespace App\Entity;
 
 use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\DateUpdatedTimestampTrait;
+use App\Entity\Trait\IdentifierTrait;
 use App\Repository\CityRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CityRepository::class)]
 #[ORM\Table(options: ['comment' => 'Город'])]
+#[ORM\HasLifecycleCallbacks]
 class City
 {
-    use DateUpdatedTimestampTrait, DateCreatedTimestampTrait;
+    use DateUpdatedTimestampTrait, DateCreatedTimestampTrait, IdentifierTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -29,11 +31,6 @@ class City
 
     #[ORM\Column]
     private ?\DateTimeImmutable $dateCreated = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getCode(): ?string
     {

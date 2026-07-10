@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Trait\IdentifierTrait;
 use App\Repository\ShopRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -10,6 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(options: ['comment' => 'Магазин'])]
 class Shop
 {
+    use IdentifierTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -23,11 +26,6 @@ class Shop
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $url = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getType(): ?string
     {

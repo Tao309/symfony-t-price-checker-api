@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProductStockRepository::class)]
 #[ORM\Table(options: ['comment' => 'Сток продукта'])]
+#[ORM\HasLifecycleCallbacks]
 class ProductStock implements UserAwareInterface
 {
     use DateCreatedTimestampTrait, UserAwareTrait;
