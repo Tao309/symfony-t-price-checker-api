@@ -19,9 +19,9 @@ class AccessTokenRepository extends ServiceEntityRepository
     public function findOneByValue(string $value): ?AccessToken
     {
         return $this->createQueryBuilder('t')
-            ->andWhere('t.tokenValue = :val')
+            ->andWhere('t.token = :token')
             ->andWhere('t.expiresAt > :now')
-            ->setParameter('val', $value)
+            ->setParameter('token', $value)
             ->setParameter('now', new \DateTimeImmutable())
             ->getQuery()
             ->getOneOrNullResult();

@@ -14,7 +14,7 @@ class AccessTokenHandler implements AccessTokenHandlerInterface
     ) {
     }
 
-    public function getUserBadgeFrom(string $accessToken): UserBadge
+    public function getUserBadgeFrom(#[\SensitiveParameter] string $accessToken): UserBadge
     {
         $accessToken = $this->repository->findOneByValue($accessToken);
 

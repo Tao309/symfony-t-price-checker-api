@@ -1,0 +1,28 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DoctrineMigrations;
+
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\Migrations\AbstractMigration;
+
+final class Version20260710114844 extends AbstractMigration
+{
+    public function getDescription(): string
+    {
+        return 'Добавление уникального поля username в таблицу user';
+    }
+
+    public function up(Schema $schema): void
+    {
+        $this->addSql('ALTER TABLE "user" ADD username VARCHAR(50) NOT NULL');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_IDENTIFIER_USERNAME ON "user" (username)');
+    }
+
+    public function down(Schema $schema): void
+    {
+        $this->addSql('DROP INDEX UNIQ_IDENTIFIER_USERNAME');
+        $this->addSql('ALTER TABLE "user" DROP username');
+    }
+}

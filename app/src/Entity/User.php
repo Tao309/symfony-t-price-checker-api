@@ -2,25 +2,46 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\OpenApi\Model\Operation;
 use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_USERNAME', fields: ['username'])]
+#[ApiResource(
+    operations: [
+        new Get(
+            requirements: ['id' => '\d+'],
+            openapi: new Operation(
+                summary: 'Получить пользователя',
+            ),
+            normalizationContext: ['groups' => [Book::GROUP_BOOK_READ]],
+        ),
+    ],
+    order: ['id' => 'DESC'],
+    security: "is_granted('ROLE_USER')"
+)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups([Book::GROUP_BOOK_READ])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
     private ?string $email = null;
+
+    #[ORM\Column(length: 50)]
+    #[Groups([Book::GROUP_BOOK_READ])]
+    private ?string $username = null;
 
     /**
      * @var list<string> The user roles
@@ -33,17 +54,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     private ?string $password = null;
-
-    /**
-     * @var Collection<int, Book>
-     */
-    #[ORM\OneToMany(targetEntity: Book::class, mappedBy: 'createdUser')]
-    private Collection $books;
-
-    public function __construct()
-    {
-        $this->books = new ArrayCollection();
-    }
 
     public function getId(): ?int
     {
@@ -62,23 +72,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
-    public function getUserIdentifier(): string
+    public function getUsername(): ?string
     {
-        return (string) $this->email;
+        return $this->username;
     }
 
-    /**
-     * @see UserInterface
-     */
+    public function setUsername(string $username): static
+    {
+        $this->username = $username;
+
+        return $this;
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->username;
+    }
+
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
@@ -118,35 +131,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $data["\0".self::class."\0password"] = hash('crc32c', $this->password);
 
         return $data;
-    }
-
-    /**
-     * @return Collection<int, Book>
-     */
-    public function getBooks(): Collection
-    {
-        return $this->books;
-    }
-
-    public function addBook(Book $book): static
-    {
-        if (!$this->books->contains($book)) {
-            $this->books->add($book);
-            $book->setUserCreated($this);
-        }
-
-        return $this;
-    }
-
-    public function removeBook(Book $book): static
-    {
-        if ($this->books->removeElement($book)) {
-            // set the owning side to null (unless already changed)
-            if ($book->getUserCreated() === $this) {
-                $book->setUserCreated(null);
-            }
-        }
-
-        return $this;
     }
 }

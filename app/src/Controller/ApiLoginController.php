@@ -13,7 +13,6 @@ final class ApiLoginController extends AbstractController
     {
         return $this->json([
             'message' => 'Welcome!',
-            'path' => 'src/Controller/ApiLoginController.php',
         ]);
     }
 }

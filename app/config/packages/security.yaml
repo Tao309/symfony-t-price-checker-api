@@ -9,13 +9,22 @@ security:
         app_user_provider:
             entity:
                 class: App\Entity\User
-                property: email
+                property: username
 
     firewalls:
         dev:
             # Ensure dev tools and static assets are always allowed
             pattern: ^/(_profiler|_wdt|assets|build)/
             security: false
+
+        api:
+            pattern: ^/api/v1
+            stateless: true
+            provider: app_user_provider
+            access_token:
+                token_handler: App\Security\AccessTokenHandler
+                token_extractors: header
+
         main:
             lazy: true
             provider: app_user_provider
@@ -33,9 +42,10 @@ security:
             # https://symfony.com/doc/current/security/impersonating_user.html
             # switch_user: true
 
-    # Note: Only the *first* matching rule is applied
     access_control:
-        - { path: ^/api, roles: ROLE_USER }
+        - { path: ^/api$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/docs, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1, roles: ROLE_USER }
 
 when@test:
     security:
