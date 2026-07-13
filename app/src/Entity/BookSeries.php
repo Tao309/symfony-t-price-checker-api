@@ -7,6 +7,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\DateUpdatedTimestampTrait;
+use App\Entity\Trait\IdentifierTrait;
 use App\Repository\BookSeriesRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -31,6 +32,7 @@ class BookSeries
 {
     use DateUpdatedTimestampTrait;
     use DateCreatedTimestampTrait;
+    use IdentifierTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -49,11 +51,6 @@ class BookSeries
     #[ORM\Column]
     #[Groups([Book::GROUP_BOOK_READ])]
     private ?\DateTimeImmutable $dateCreated = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getName(): ?string
     {

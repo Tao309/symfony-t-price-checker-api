@@ -16,6 +16,36 @@
 
 ## Команды:
 
+### Импорт серий книг
+Запуск `php bin/console import:book_series`
+
+Настройки:
+- `show-parsing-log` Показывать детали парсинга (по умолчанию да)
+- `fake` Фейковый запрос, без записи в БД (по умолчанию да)
+
+Оптимальный запуск команды на проде:
+`php bin/console import:book_series --fake=0`
+
+### Импорт издательских брендов
+Запуск `php bin/console import:book_publishing_brand`
+
+Настройки:
+- `show-parsing-log` Показывать детали парсинга (по умолчанию да)
+- `fake` Фейковый запрос, без записи в БД (по умолчанию да)
+
+Оптимальный запуск команды на проде:
+`php bin/console import:book_publishing_brand --fake=0`
+
+### Импорт издательских домов
+Запуск `php bin/console import:book_publishing_house`
+
+Настройки:
+- `show-parsing-log` Показывать детали парсинга (по умолчанию да)
+- `fake` Фейковый запрос, без записи в БД (по умолчанию да)
+
+Оптимальный запуск команды на проде:
+`php bin/console import:book_publishing_house --fake=0`
+
 ### Импорт типов источников товаров
 Запуск `php bin/console import:source_product_types`
 
@@ -25,6 +55,15 @@
 
 Оптимальный запуск команды на проде:
 `php bin/console import:source_product_types --fake=0`
+
+
+
+## Запуск локально:
+- `docker-compose up --build -d`
+- переходим в bash контейнера php
+- `composer install`
+- `php bin/console doctrine:migration:migrate`
+- `php bin/console doctrine:fixtures:load`
 
 
 ## Реализовать:

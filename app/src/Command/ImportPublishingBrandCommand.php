@@ -2,40 +2,40 @@
 
 namespace App\Command;
 
-use App\Entity\SourceProductType;
+use App\Entity\BookPublishingBrand;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand(
-    name: 'import:source_product_types',
-    description: 'Импортируем список типов источников товаров',
+    name: 'import:book_publishing_brand',
+    description: 'Импортируем список издательских брендов',
 )]
-class ImportSourceProductTypesCommand extends CommonImportCommand
+class ImportPublishingBrandCommand extends CommonImportCommand
 {
-    public const string COMMAND_LABEL = 'типы источников товаров';
+    public const string COMMAND_LABEL = 'издательские бренды';
 
     private const string FIELD_ID = 'id';
-    private const string FIELD_CODE = 'code';
     private const string FIELD_NAME = 'name';
+    private const string FIELD_DATE_UPDATED = 'date_updated';
     private const string FIELD_DATE_CREATED = 'date_created';
 
-    protected string $filePath = '/migrations/import/source_product_types.csv';
+    protected string $filePath = '/migrations/import/book_publishing_brand.csv';
 
     protected function fillImportRow(array $row): void
     {
         $this->importData[] = [
             self::FIELD_ID => (int) $row[0],
-            self::FIELD_CODE => $row[1],
-            self::FIELD_NAME => $row[2],
+            self::FIELD_NAME => $row[1],
+            self::FIELD_DATE_UPDATED => $row[2],
             self::FIELD_DATE_CREATED => $row[3],
         ];
     }
 
     protected function createEntityByImportRowData(array $row): mixed
     {
-        $entity = new SourceProductType();
+        $entity = new BookPublishingBrand();
         $entity->setId($row[self::FIELD_ID]);
-        $entity->setCode($row[self::FIELD_CODE]);
         $entity->setName($row[self::FIELD_NAME]);
+        $entity->setDateUpdated(new \DateTimeImmutable($row[self::FIELD_DATE_UPDATED]));
         $entity->setDateCreated(new \DateTimeImmutable($row[self::FIELD_DATE_CREATED]));
 
         return $entity;
