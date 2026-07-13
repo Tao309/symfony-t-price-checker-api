@@ -21,7 +21,7 @@ trait DateUpdatedTimestampTrait
     #[ORM\PreUpdate]
     public function onPreUpdate(): void
     {
-        if ($this->dateUpdated === null) {
+        if (null === $this->dateUpdated) {
             $this->dateUpdated = new \DateTimeImmutable();
         }
     }
@@ -29,7 +29,7 @@ trait DateUpdatedTimestampTrait
     #[ORM\PrePersist]
     public function onPrePersist(): void
     {
-        if ($this->dateUpdated === null) {
+        if (null === $this->dateUpdated) {
             $this->dateUpdated = new \DateTimeImmutable();
         }
     }

@@ -13,7 +13,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\HasLifecycleCallbacks]
 class Product implements UserAwareInterface
 {
-    use DateUpdatedTimestampTrait, DateCreatedTimestampTrait, UserAwareTrait;
+    use DateUpdatedTimestampTrait;
+    use DateCreatedTimestampTrait;
+    use UserAwareTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

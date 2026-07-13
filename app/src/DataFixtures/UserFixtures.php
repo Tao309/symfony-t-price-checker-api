@@ -12,7 +12,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 class UserFixtures extends Fixture
 {
     public function __construct(
-        readonly private UserPasswordHasherInterface $passwordHasher,
+        private readonly UserPasswordHasherInterface $passwordHasher,
         #[Autowire('%env(TOKEN_ADMIN)%')] private readonly string $adminToken,
         #[Autowire('%env(TOKEN_USER_1)%')] private readonly string $userTokenOne,
         #[Autowire('%env(TOKEN_USER_2)%')] private readonly string $userTokenTwo,
@@ -20,8 +20,7 @@ class UserFixtures extends Fixture
         #[Autowire('%env(NAME_USER_1)%')] private readonly string $userNameOne,
         #[Autowire('%env(NAME_USER_2)%')] private readonly string $userNameTwo,
         #[Autowire('%env(NAME_USER_3)%')] private readonly string $userNameThree,
-    )
-    {
+    ) {
     }
 
     public function load(ObjectManager $manager): void
@@ -46,7 +45,7 @@ class UserFixtures extends Fixture
         if ($this->userTokenOne && $this->userNameOne) {
             $user = new User();
             $user->setUsername($this->userNameOne);
-            $user->setEmail($this->userNameOne . '@localhost.ru');
+            $user->setEmail($this->userNameOne.'@localhost.ru');
             $user->setPassword($this->passwordHasher->hashPassword($user, $this->userTokenOne));
             $user->setRoles(['ROLE_USER']);
             $manager->persist($user);
@@ -61,7 +60,7 @@ class UserFixtures extends Fixture
         if ($this->userTokenTwo && $this->userNameTwo) {
             $user = new User();
             $user->setUsername($this->userNameTwo);
-            $user->setEmail($this->userNameTwo . '@localhost.ru');
+            $user->setEmail($this->userNameTwo.'@localhost.ru');
             $user->setPassword($this->passwordHasher->hashPassword($user, $this->userTokenTwo));
             $user->setRoles(['ROLE_USER']);
             $manager->persist($user);
@@ -76,7 +75,7 @@ class UserFixtures extends Fixture
         if ($this->userTokenThree && $this->userNameThree) {
             $user = new User();
             $user->setUsername($this->userNameThree);
-            $user->setEmail($this->userNameThree . '@localhost.ru');
+            $user->setEmail($this->userNameThree.'@localhost.ru');
             $user->setPassword($this->passwordHasher->hashPassword($user, $this->userTokenThree));
             $user->setRoles(['ROLE_USER']);
             $manager->persist($user);

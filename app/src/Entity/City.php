@@ -13,7 +13,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\HasLifecycleCallbacks]
 class City
 {
-    use DateUpdatedTimestampTrait, DateCreatedTimestampTrait, IdentifierTrait;
+    use DateUpdatedTimestampTrait;
+    use DateCreatedTimestampTrait;
+    use IdentifierTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

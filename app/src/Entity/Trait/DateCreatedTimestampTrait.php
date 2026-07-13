@@ -21,7 +21,7 @@ trait DateCreatedTimestampTrait
     #[ORM\PrePersist]
     public function setDateCreatedValue(): void
     {
-        if ($this->dateCreated === null) {
+        if (null === $this->dateCreated) {
             $this->dateCreated = new \DateTimeImmutable();
         }
     }

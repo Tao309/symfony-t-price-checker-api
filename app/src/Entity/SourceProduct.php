@@ -12,7 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\HasLifecycleCallbacks]
 class SourceProduct
 {
-    use DateUpdatedTimestampTrait, DateCreatedTimestampTrait;
+    use DateUpdatedTimestampTrait;
+    use DateCreatedTimestampTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

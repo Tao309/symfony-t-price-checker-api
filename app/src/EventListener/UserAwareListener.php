@@ -11,13 +11,15 @@ use Symfony\Bundle\SecurityBundle\Security;
 #[AsEntityListener(event: Events::prePersist, method: 'prePersist')]
 class UserAwareListener
 {
-    public function __construct(private Security $security) {}
+    public function __construct(private Security $security)
+    {
+    }
 
     public function prePersist(UserAwareInterface $entity, PrePersistEventArgs $event): void
     {
         $user = $this->security->getUser();
 
-        if ($user !== null) {
+        if (null !== $user) {
             $entity->setUserCreated($user);
         }
     }

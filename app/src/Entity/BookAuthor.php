@@ -32,7 +32,8 @@ use Symfony\Component\Serializer\Attribute\Groups;
 )]
 class BookAuthor
 {
-    use DateUpdatedTimestampTrait, DateCreatedTimestampTrait;
+    use DateUpdatedTimestampTrait;
+    use DateCreatedTimestampTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

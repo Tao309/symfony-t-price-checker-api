@@ -7,6 +7,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\OpenApi\Model\Operation;
 use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\DateUpdatedTimestampTrait;
 use App\Entity\Trait\UserAwareTrait;
@@ -15,7 +16,6 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-use ApiPlatform\OpenApi\Model\Operation;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
 #[ORM\Table(options: ['comment' => 'Книги'])]
@@ -54,7 +54,9 @@ use ApiPlatform\OpenApi\Model\Operation;
 )]
 class Book implements UserAwareInterface
 {
-    use DateUpdatedTimestampTrait, DateCreatedTimestampTrait, UserAwareTrait;
+    use DateUpdatedTimestampTrait;
+    use DateCreatedTimestampTrait;
+    use UserAwareTrait;
 
     public const string GROUP_BOOK_READ = 'book:read';
     public const string GROUP_BOOK_WRITE = 'book:write';
