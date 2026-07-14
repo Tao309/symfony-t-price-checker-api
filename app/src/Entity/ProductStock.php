@@ -6,9 +6,14 @@ use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\UserAwareTrait;
 use App\Repository\ProductStockRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: ProductStockRepository::class)]
-#[ORM\Table(options: ['comment' => 'Сток продукта'])]
+#[ORM\Table(options: ['comment' => 'Сток товара'])]
+#[ORM\UniqueConstraint(name: 'ps_product_user_date', columns: ['product_id', 'user_created_id', 'date_created_string'])]
+#[UniqueEntity(
+    fields: ['product_id', 'user_created_id', 'date_created_string'],
+    message: 'ProductStock с такой комбинацией полей уже существует')]
 #[ORM\HasLifecycleCallbacks]
 class ProductStock implements UserAwareInterface
 {
@@ -16,10 +21,6 @@ class ProductStock implements UserAwareInterface
     use UserAwareTrait;
 
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Product $product = null;
@@ -30,6 +31,7 @@ class ProductStock implements UserAwareInterface
     #[ORM\Column]
     private ?\DateTimeImmutable $dateCreated = null;
 
+    #[ORM\Id]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $userCreated = null;
@@ -37,10 +39,9 @@ class ProductStock implements UserAwareInterface
     #[ORM\Column(nullable: true)]
     private ?array $log = null;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+    #[ORM\Id]
+    #[ORM\Column(length: 25)]
+    private ?string $dateCreatedString = null;
 
     public function getProduct(): ?Product
     {
@@ -74,6 +75,18 @@ class ProductStock implements UserAwareInterface
     public function setLog(?array $log): static
     {
         $this->log = $log;
+
+        return $this;
+    }
+
+    public function getDateCreatedString(): ?string
+    {
+        return $this->dateCreatedString;
+    }
+
+    public function setDateCreatedString(string $dateCreatedString): static
+    {
+        $this->dateCreatedString = $dateCreatedString;
 
         return $this;
     }

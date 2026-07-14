@@ -44,6 +44,33 @@ class ImportProductsCommand extends CommonImportCommand
         parent::__construct($projectDir, $em);
     }
 
+    protected function runBeforeImport(): void
+    {
+        // Проверяем целостность всех данных в строках импорта
+        $parsingErrors = [];
+
+        foreach ($this->importData as $data) {
+            try {
+                new \DateTimeImmutable($data[self::FIELD_DATE_UPDATED]);
+            } catch (\Throwable $e) {
+                $parsingErrors[] = [self::FIELD_DATE_UPDATED, $data[self::FIELD_ID]];
+            }
+
+            try {
+                new \DateTimeImmutable($data[self::FIELD_DATE_CREATED]);
+            } catch (\Throwable $e) {
+                $parsingErrors[] = [self::FIELD_DATE_CREATED, $data[self::FIELD_ID], $data[self::FIELD_TITLE]];
+            }
+        }
+
+        if ($parsingErrors) {
+            $this->io->error('Ошибки при парсинге файла');
+            $this->io->table(['field', 'product_id', 'title'], $parsingErrors);
+
+            throw new \RuntimeException('Ошибки при парсинге файла');
+        }
+    }
+
     protected function runBeforeFlush(): void
     {
         $metadata = $this->em->getClassMetaData(Product::class);

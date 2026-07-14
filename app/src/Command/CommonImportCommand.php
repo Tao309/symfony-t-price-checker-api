@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Command\Exception\SkipRowImportException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -16,18 +17,22 @@ abstract class CommonImportCommand extends Command
     protected int $added = 0;
     protected int $showParsingLog = 1;
     protected int $isFake = 1;
+    protected int $justCheckParsing = 0;
     protected array $importData = [];
     protected string $filePath = '';
 
     abstract protected function fillImportRow(array $row): void;
 
+    /**
+     * @throws SkipRowImportException
+     */
     abstract protected function createEntityByImportRowData(array $row): mixed;
 
-    protected function runBeforeFlush(): void
+    protected function runBeforeImport(): void
     {
     }
 
-    protected function runBeforeImport(): void
+    protected function runBeforeFlush(): void
     {
     }
 
@@ -47,6 +52,7 @@ abstract class CommonImportCommand extends Command
         $this
             ->addOption('show-parsing-log', null, InputArgument::OPTIONAL, 'Показывать детали парсинга?', 1)
             ->addOption('fake', null, InputArgument::OPTIONAL, 'Фейковый запрос без записи?', 1)
+            ->addOption('just-check-parsing', null, InputArgument::OPTIONAL, 'Проверить только парсинг?', 1)
         ;
     }
 
@@ -54,13 +60,17 @@ abstract class CommonImportCommand extends Command
     {
         $this->io = new SymfonyStyle($input, $output);
         $this->added = 0;
-        $this->showParsingLog = (bool) $input->getOption('show-parsing-log') ?? 1;
-        $this->isFake = (bool) $input->getOption('fake') ?? 1;
+        $this->showParsingLog = (bool) ($input->getOption('show-parsing-log') ?? 1);
+        $this->isFake = (bool) ($input->getOption('fake') ?? 1);
+        $this->justCheckParsing = (bool) ($input->getOption('just-check-parsing') ?? 1);
 
         try {
             $this->assembleImportData();
             $this->runBeforeImport();
-            $this->persistImportData();
+
+            if (!$this->justCheckParsing) {
+                $this->persistImportData();
+            }
         } catch (\Throwable $e) {
             $this->io->error($e->getMessage());
 
@@ -152,22 +162,31 @@ abstract class CommonImportCommand extends Command
             }
 
             for ($i = 0; $i < $totalRecords; ++$i) {
-                $entity = $this->createEntityByImportRowData($this->importData[$i]);
+                try {
+                    $importData = $this->importData[$i];
+                    $entity = $this->createEntityByImportRowData($importData);
 
-                if (!$this->isFake) {
-                    $this->em->persist($entity);
-                }
-
-                if (($i % $batchSize) === 0) {
                     if (!$this->isFake) {
-                        $this->runBeforeFlush();
-                        $this->em->flush();
-                        $this->em->clear();
+                        $this->em->persist($entity);
                     }
-                }
 
-                ++$this->added;
-                $this->io->progressAdvance();
+                    if (($i % $batchSize) === 0) {
+                        if (!$this->isFake) {
+                            $this->runBeforeFlush();
+                            $this->em->flush();
+                            $this->em->clear();
+                        }
+                    }
+
+                    ++$this->added;
+                    $this->io->progressAdvance();
+                } catch (SkipRowImportException) {
+                    continue;
+                } catch (\Throwable $e) {
+                    $this->io->error(json_encode($importData, JSON_PRETTY_PRINT));
+
+                    throw $e;
+                }
             }
 
             if (!$this->isFake) {

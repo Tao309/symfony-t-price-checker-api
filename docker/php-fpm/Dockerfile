@@ -20,8 +20,6 @@ RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-#COPY . /var/www/app
-
 COPY --link \
     --from=ghcr.io/symfony-cli/symfony-cli:latest \
     /usr/local/bin/symfony /usr/local/bin/symfony

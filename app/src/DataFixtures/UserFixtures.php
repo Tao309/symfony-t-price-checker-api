@@ -22,6 +22,10 @@ class UserFixtures extends Fixture
         #[Autowire('%env(NAME_USER_1)%')] private readonly string $userNameOne,
         #[Autowire('%env(NAME_USER_2)%')] private readonly string $userNameTwo,
         #[Autowire('%env(NAME_USER_3)%')] private readonly string $userNameThree,
+        #[Autowire('%env(ID_ADMIN)%')] private readonly string $userIdAdmin,
+        #[Autowire('%env(ID_USER_1)%')] private readonly string $userIdOne,
+        #[Autowire('%env(ID_USER_2)%')] private readonly string $userIdTwo,
+        #[Autowire('%env(ID_USER_3)%')] private readonly string $userIdThree,
     ) {
     }
 
@@ -31,6 +35,7 @@ class UserFixtures extends Fixture
 
         if ($this->adminToken) {
             $user = new User();
+            $user->setId($this->userIdAdmin);
             $user->setUsername('admin');
             $user->setEmail('admin@localhost.ru');
             $user->setPassword($this->passwordHasher->hashPassword($user, $this->adminToken));
@@ -46,6 +51,7 @@ class UserFixtures extends Fixture
 
         if ($this->userTokenOne && $this->userNameOne) {
             $user = new User();
+            $user->setId($this->userIdOne);
             $user->setUsername($this->userNameOne);
             $user->setEmail($this->userNameOne.'@localhost.ru');
             $user->setPassword($this->passwordHasher->hashPassword($user, $this->userTokenOne));
@@ -61,6 +67,7 @@ class UserFixtures extends Fixture
 
         if ($this->userTokenTwo && $this->userNameTwo) {
             $user = new User();
+            $user->setId($this->userIdTwo);
             $user->setUsername($this->userNameTwo);
             $user->setEmail($this->userNameTwo.'@localhost.ru');
             $user->setPassword($this->passwordHasher->hashPassword($user, $this->userTokenTwo));
@@ -76,6 +83,7 @@ class UserFixtures extends Fixture
 
         if ($this->userTokenThree && $this->userNameThree) {
             $user = new User();
+            $user->setId($this->userIdThree);
             $user->setUsername($this->userNameThree);
             $user->setEmail($this->userNameThree.'@localhost.ru');
             $user->setPassword($this->passwordHasher->hashPassword($user, $this->userTokenThree));
@@ -96,6 +104,7 @@ class UserFixtures extends Fixture
         $metadata = $this->em->getClassMetaData(User::class);
         $metadata->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
         $metadata->setIdGenerator(new \Doctrine\ORM\Id\AssignedGenerator());
+
         $manager->flush();
     }
 }

@@ -6,9 +6,14 @@ use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\UserAwareTrait;
 use App\Repository\ProductPriceRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: ProductPriceRepository::class)]
-#[ORM\Table(options: ['comment' => 'Цена продукта'])]
+#[ORM\Table(options: ['comment' => 'Цена товара'])]
+#[ORM\UniqueConstraint(name: 'pp_product_user_date', columns: ['product_id', 'user_created_id', 'date_created_string'])]
+#[UniqueEntity(
+    fields: ['product_id', 'user_created_id', 'date_created_string'],
+    message: 'ProductPrice с такой комбинацией полей уже существует')]
 #[ORM\HasLifecycleCallbacks]
 class ProductPrice implements UserAwareInterface
 {
@@ -16,10 +21,6 @@ class ProductPrice implements UserAwareInterface
     use UserAwareTrait;
 
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Product $product = null;
@@ -27,24 +28,17 @@ class ProductPrice implements UserAwareInterface
     #[ORM\Column]
     private ?int $price = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $dateCreated = null;
-
+    #[ORM\Id]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $userCreated = null;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+    #[ORM\Column]
+    private ?\DateTimeImmutable $dateCreated = null;
 
-    public function setId(?Product $id): static
-    {
-        $this->id = $id;
-
-        return $this;
-    }
+    #[ORM\Id]
+    #[ORM\Column(length: 25, nullable: false)]
+    private ?string $dateCreatedString = null;
 
     public function getProduct(): ?Product
     {
@@ -66,6 +60,18 @@ class ProductPrice implements UserAwareInterface
     public function setPrice(int $price): static
     {
         $this->price = $price;
+
+        return $this;
+    }
+
+    public function getDateCreatedString(): ?string
+    {
+        return $this->dateCreatedString;
+    }
+
+    public function setDateCreatedString(string $dateCreatedString): static
+    {
+        $this->dateCreatedString = $dateCreatedString;
 
         return $this;
     }

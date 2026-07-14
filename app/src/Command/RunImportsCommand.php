@@ -21,14 +21,16 @@ class RunImportsCommand extends Command
         $this
             ->addOption('show-parsing-log', null, InputArgument::OPTIONAL, 'Показывать детали парсинга?', 1)
             ->addOption('fake', null, InputArgument::OPTIONAL, 'Фейковый запрос без записи?', 1)
+            ->addOption('just-check-parsing', null, InputArgument::OPTIONAL, 'Проверить только парсинг?', 1)
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $showParsingLog = (bool) $input->getOption('show-parsing-log') ?? 1;
-        $isFake = (bool) $input->getOption('fake') ?? 1;
+        $showParsingLog = (bool) ($input->getOption('show-parsing-log') ?? 1);
+        $isFake = (bool) ($input->getOption('fake') ?? 1);
+        $justCheckParsing = (bool) ($input->getOption('just-check-parsing') ?? 1);
 
         $commandNames = [
             'import:book_series',
@@ -37,6 +39,8 @@ class RunImportsCommand extends Command
             'import:source_product_types',
             'import:books',
             'import:products',
+            'import:product_prices',
+            'import:product_stocks',
         ];
 
         try {
@@ -53,6 +57,7 @@ class RunImportsCommand extends Command
                     'command' => $commandName,
                     '--show-parsing-log' => $showParsingLog,
                     '--fake' => $isFake,
+                    '--just-check-parsing' => $justCheckParsing,
                 ];
 
                 $subCommandInput = new ArrayInput($arguments);
