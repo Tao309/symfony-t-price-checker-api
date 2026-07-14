@@ -15,10 +15,10 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[AsCommand(
-    name: 'import:book',
+    name: 'import:books',
     description: 'Импортируем список книг и авторов',
 )]
-class ImportBookCommand extends CommonImportCommand
+class ImportBooksCommand extends CommonImportCommand
 {
     public const string COMMAND_LABEL = 'книги';
 

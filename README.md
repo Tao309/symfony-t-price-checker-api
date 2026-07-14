@@ -16,6 +16,16 @@
 
 ## Команды:
 
+### Запуск всех команд с импортом
+Запуск `php bin/console import:run-all`
+
+Настройки:
+- `show-parsing-log` Показывать детали парсинга (по умолчанию да)
+- `fake` Фейковый запрос, без записи в БД (по умолчанию да)
+
+Оптимальный запуск команды на проде:
+`php bin/console import:run-all --fake=0`
+
 ### Импорт серий книг
 Запуск `php bin/console import:book_series`
 
@@ -27,24 +37,24 @@
 `php bin/console import:book_series --fake=0`
 
 ### Импорт издательских брендов
-Запуск `php bin/console import:book_publishing_brand`
+Запуск `php bin/console import:book_publishing_brands`
 
 Настройки:
 - `show-parsing-log` Показывать детали парсинга (по умолчанию да)
 - `fake` Фейковый запрос, без записи в БД (по умолчанию да)
 
 Оптимальный запуск команды на проде:
-`php bin/console import:book_publishing_brand --fake=0`
+`php bin/console import:book_publishing_brands --fake=0`
 
 ### Импорт издательских домов
-Запуск `php bin/console import:book_publishing_house`
+Запуск `php bin/console import:book_publishing_houses`
 
 Настройки:
 - `show-parsing-log` Показывать детали парсинга (по умолчанию да)
 - `fake` Фейковый запрос, без записи в БД (по умолчанию да)
 
 Оптимальный запуск команды на проде:
-`php bin/console import:book_publishing_house --fake=0`
+`php bin/console import:book_publishing_houses --fake=0`
 
 ### Импорт типов источников товаров
 Запуск `php bin/console import:source_product_types`
@@ -56,6 +66,25 @@
 Оптимальный запуск команды на проде:
 `php bin/console import:source_product_types --fake=0`
 
+### Импорт книг
+Запуск `php bin/console import:books`
+
+Настройки:
+- `show-parsing-log` Показывать детали парсинга (по умолчанию да)
+- `fake` Фейковый запрос, без записи в БД (по умолчанию да)
+
+Оптимальный запуск команды на проде:
+`php bin/console import:books --fake=0`
+
+### Импорт товаров
+Запуск `php bin/console import:products`
+
+Настройки:
+- `show-parsing-log` Показывать детали парсинга (по умолчанию да)
+- `fake` Фейковый запрос, без записи в БД (по умолчанию да)
+
+Оптимальный запуск команды на проде:
+`php bin/console import:products --fake=0`
 
 
 ## Запуск локально:

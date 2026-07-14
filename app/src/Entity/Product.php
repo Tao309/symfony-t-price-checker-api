@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\DateUpdatedTimestampTrait;
+use App\Entity\Trait\IdentifierTrait;
 use App\Entity\Trait\UserAwareTrait;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -16,6 +17,7 @@ class Product implements UserAwareInterface
     use DateUpdatedTimestampTrait;
     use DateCreatedTimestampTrait;
     use UserAwareTrait;
+    use IdentifierTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -53,11 +55,6 @@ class Product implements UserAwareInterface
 
     #[ORM\Column]
     private ?\DateTimeImmutable $dateCreated = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getShopProductId(): ?string
     {

@@ -6,10 +6,10 @@ use App\Entity\BookPublishingHouse;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand(
-    name: 'import:book_publishing_house',
+    name: 'import:book_publishing_houses',
     description: 'Импортируем список издательских домов',
 )]
-class ImportPublishingHouseCommand extends CommonImportCommand
+class ImportPublishingHousesCommand extends CommonImportCommand
 {
     public const string COMMAND_LABEL = 'издательские дома';
 

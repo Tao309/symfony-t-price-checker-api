@@ -32,10 +32,11 @@ class RunImportsCommand extends Command
 
         $commandNames = [
             'import:book_series',
-            'import:book_publishing_brand',
-            'import:book_publishing_house',
+            'import:book_publishing_brands',
+            'import:book_publishing_houses',
             'import:source_product_types',
-            'import:book',
+            'import:books',
+            'import:products',
         ];
 
         try {
