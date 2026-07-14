@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\DateUpdatedTimestampTrait;
+use App\Entity\Trait\IdentifierTrait;
 use App\Entity\Trait\UserAwareTrait;
 use App\Repository\BookRepository;
 use Doctrine\DBAL\Types\Types;
@@ -57,6 +58,7 @@ class Book implements UserAwareInterface
     use DateUpdatedTimestampTrait;
     use DateCreatedTimestampTrait;
     use UserAwareTrait;
+    use IdentifierTrait;
 
     public const string GROUP_BOOK_READ = 'book:read';
     public const string GROUP_BOOK_WRITE = 'book:write';
@@ -96,7 +98,7 @@ class Book implements UserAwareInterface
     #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
     private ?int $circulation = null;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 20, nullable: true)]
     #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
     #[Assert\Positive(groups: [self::GROUP_BOOK_WRITE])]
     private ?string $size = null;
@@ -126,11 +128,11 @@ class Book implements UserAwareInterface
 
     #[ORM\Column(nullable: true)]
     #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
-    private ?int $livelibId = null;
+    private ?string $livelibId = null;
 
     #[ORM\Column(nullable: true)]
     #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
-    private ?int $goodreads_id = null;
+    private ?string $goodreadsId = null;
 
     #[ORM\Column(length: 100, nullable: true)]
     #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
@@ -144,6 +146,7 @@ class Book implements UserAwareInterface
     #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
     private ?float $goodreadsRating = null;
 
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups([self::GROUP_BOOK_READ])]
     private ?User $userCreated = null;
@@ -155,11 +158,6 @@ class Book implements UserAwareInterface
     #[ORM\Column]
     #[Groups([self::GROUP_BOOK_READ])]
     private ?\DateTimeImmutable $dateCreated = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getTitle(): ?string
     {
@@ -238,7 +236,7 @@ class Book implements UserAwareInterface
         return $this->size;
     }
 
-    public function setSize(string $size): static
+    public function setSize(?string $size): static
     {
         $this->size = $size;
 
@@ -250,7 +248,7 @@ class Book implements UserAwareInterface
         return $this->publishYear;
     }
 
-    public function setPublishYear(int $publishYear): static
+    public function setPublishYear(?int $publishYear): static
     {
         $this->publishYear = $publishYear;
 
@@ -305,26 +303,26 @@ class Book implements UserAwareInterface
         return $this;
     }
 
-    public function getLivelibId(): ?int
+    public function getLivelibId(): ?string
     {
         return $this->livelibId;
     }
 
-    public function setLivelibId(?int $livelibId): static
+    public function setLivelibId(?string $livelibId): static
     {
         $this->livelibId = $livelibId;
 
         return $this;
     }
 
-    public function getGoodreadsId(): ?int
+    public function getGoodreadsId(): ?string
     {
-        return $this->goodreads_id;
+        return $this->goodreadsId;
     }
 
-    public function setGoodreadsId(?int $goodreads_id): static
+    public function setGoodreadsId(?string $goodreadsId): static
     {
-        $this->goodreads_id = $goodreads_id;
+        $this->goodreadsId = $goodreadsId;
 
         return $this;
     }

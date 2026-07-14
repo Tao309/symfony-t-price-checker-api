@@ -23,9 +23,21 @@ abstract class CommonImportCommand extends Command
 
     abstract protected function createEntityByImportRowData(array $row): mixed;
 
+    protected function runBeforeFlush(): void
+    {
+    }
+
+    protected function runBeforeImport(): void
+    {
+    }
+
+    protected function runAtEnd(): void
+    {
+    }
+
     public function __construct(
-        #[Autowire('%kernel.project_dir%')] protected readonly string $projectDir,
-        protected readonly EntityManagerInterface $em,
+        #[Autowire('%kernel.project_dir%')] protected string $projectDir,
+        protected EntityManagerInterface $em,
     ) {
         parent::__construct();
     }
@@ -47,6 +59,7 @@ abstract class CommonImportCommand extends Command
 
         try {
             $this->assembleImportData();
+            $this->runBeforeImport();
             $this->persistImportData();
         } catch (\Throwable $e) {
             $this->io->error($e->getMessage());
@@ -60,6 +73,8 @@ abstract class CommonImportCommand extends Command
         if ($this->isFake) {
             $this->io->warning('Фейковый запуск команды');
         }
+
+        $this->runAtEnd();
 
         return Command::SUCCESS;
     }
@@ -103,6 +118,10 @@ abstract class CommonImportCommand extends Command
                 );
             }
 
+            foreach ($row as $index => $rowData) {
+                $row[$index] = 'null' === strtolower(trim($rowData)) ? null : trim($rowData);
+            }
+
             $this->fillImportRow($row);
         }
 
@@ -141,6 +160,7 @@ abstract class CommonImportCommand extends Command
 
                 if (($i % $batchSize) === 0) {
                     if (!$this->isFake) {
+                        $this->runBeforeFlush();
                         $this->em->flush();
                         $this->em->clear();
                     }
@@ -151,6 +171,7 @@ abstract class CommonImportCommand extends Command
             }
 
             if (!$this->isFake) {
+                $this->runBeforeFlush();
                 $this->em->flush();
                 $this->em->clear();
                 $this->em->commit();

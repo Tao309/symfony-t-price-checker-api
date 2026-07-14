@@ -64,6 +64,7 @@
 - `composer install`
 - `php bin/console doctrine:migration:migrate`
 - `php bin/console doctrine:fixtures:load`
+- `php bin/console import:run-all --fake=0`
 
 
 ## Реализовать:

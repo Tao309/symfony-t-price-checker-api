@@ -20,6 +20,13 @@ class ImportSourceProductTypesCommand extends CommonImportCommand
 
     protected string $filePath = '/migrations/import/source_product_types.csv';
 
+    protected function runBeforeFlush(): void
+    {
+        $metadata = $this->em->getClassMetaData(SourceProductType::class);
+        $metadata->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
+        $metadata->setIdGenerator(new \Doctrine\ORM\Id\AssignedGenerator());
+    }
+
     protected function fillImportRow(array $row): void
     {
         $this->importData[] = [

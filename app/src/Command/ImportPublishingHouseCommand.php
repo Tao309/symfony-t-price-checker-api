@@ -20,6 +20,13 @@ class ImportPublishingHouseCommand extends CommonImportCommand
 
     protected string $filePath = '/migrations/import/book_publishing_house.csv';
 
+    protected function runBeforeFlush(): void
+    {
+        $metadata = $this->em->getClassMetaData(BookPublishingHouse::class);
+        $metadata->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
+        $metadata->setIdGenerator(new \Doctrine\ORM\Id\AssignedGenerator());
+    }
+
     protected function fillImportRow(array $row): void
     {
         $this->importData[] = [

@@ -5,6 +5,7 @@ namespace App\DataFixtures;
 use App\Entity\AccessToken;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -12,6 +13,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 class UserFixtures extends Fixture
 {
     public function __construct(
+        protected readonly EntityManagerInterface $em,
         private readonly UserPasswordHasherInterface $passwordHasher,
         #[Autowire('%env(TOKEN_ADMIN)%')] private readonly string $adminToken,
         #[Autowire('%env(TOKEN_USER_1)%')] private readonly string $userTokenOne,
@@ -91,6 +93,9 @@ class UserFixtures extends Fixture
             return;
         }
 
+        $metadata = $this->em->getClassMetaData(User::class);
+        $metadata->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
+        $metadata->setIdGenerator(new \Doctrine\ORM\Id\AssignedGenerator());
         $manager->flush();
     }
 }

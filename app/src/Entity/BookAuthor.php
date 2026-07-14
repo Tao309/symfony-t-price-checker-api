@@ -97,6 +97,11 @@ class BookAuthor
         return $this;
     }
 
+    public function getFullName(): string
+    {
+        return trim($this->getFirstName().' '.$this->getLastName());
+    }
+
     /**
      * @return Collection<int, Book>
      */

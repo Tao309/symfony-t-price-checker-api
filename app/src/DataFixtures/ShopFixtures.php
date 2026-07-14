@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use App\Entity\Shop;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 
 class ShopFixtures extends Fixture
@@ -16,8 +17,17 @@ class ShopFixtures extends Fixture
         [5, 'ffan', 'ffan.ru'],
     ];
 
+    public function __construct(
+        protected readonly EntityManagerInterface $em,
+    ) {
+    }
+
     public function load(ObjectManager $manager): void
     {
+        $metadata = $this->em->getClassMetaData(Shop::class);
+        $metadata->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
+        $metadata->setIdGenerator(new \Doctrine\ORM\Id\AssignedGenerator());
+
         foreach (self::IMPORT_DATA as $data) {
             $model = new Shop();
             $model->setId($data[0]);

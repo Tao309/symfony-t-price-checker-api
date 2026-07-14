@@ -20,6 +20,13 @@ class ImportBookSeriesCommand extends CommonImportCommand
 
     protected string $filePath = '/migrations/import/book_series.csv';
 
+    protected function runBeforeFlush(): void
+    {
+        $metadata = $this->em->getClassMetaData(BookSeries::class);
+        $metadata->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
+        $metadata->setIdGenerator(new \Doctrine\ORM\Id\AssignedGenerator());
+    }
+
     protected function fillImportRow(array $row): void
     {
         $this->importData[] = [
