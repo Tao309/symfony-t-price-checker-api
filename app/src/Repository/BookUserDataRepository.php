@@ -2,17 +2,17 @@
 
 namespace App\Repository;
 
-use App\Entity\BookSeries;
+use App\Entity\BookUserData;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<BookSeries>
+ * @extends ServiceEntityRepository<BookUserData>
  */
-class BookSeriesRepository extends ServiceEntityRepository
+class BookUserDataRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, BookSeries::class);
+        parent::__construct($registry, BookUserData::class);
     }
 }
