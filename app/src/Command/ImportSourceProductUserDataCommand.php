@@ -57,7 +57,7 @@ class ImportSourceProductUserDataCommand extends CommonImportCommand
             self::FIELD_SOURCE_PRODUCT_ID => (int) $row[0],
             self::FIELD_USER_CREATED_ID => (int) $row[1],
             self::FIELD_LISTEN_PRICE_VALUE => $row[2],
-            self::FIELD_COMMENT => $row[3],
+            self::FIELD_COMMENT => trim($row[3]),
             self::FIELD_DATE_UPDATED => $row[4],
             self::FIELD_DATE_CREATED => $row[5],
         ];

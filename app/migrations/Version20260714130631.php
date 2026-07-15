@@ -18,7 +18,7 @@ final class Version20260714130631 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('CREATE TABLE book_user_data (release_date TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, listen_price_value INT DEFAULT NULL, comment TEXT DEFAULT NULL, date_updated TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, date_created TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, book_id INT NOT NULL, user_created_id INT NOT NULL, PRIMARY KEY (book_id, user_created_id))');
+        $this->addSql('CREATE TABLE book_user_data (book_id INT NOT NULL, user_created_id INT NOT NULL, release_date TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, listen_price_value INT DEFAULT NULL, comment TEXT DEFAULT NULL, date_updated TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, date_created TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY (book_id, user_created_id))');
         $this->addSql('COMMENT ON TABLE book_user_data IS \'Пользовательские данные по книгам\'');
         $this->addSql('CREATE INDEX IDX_C5DCA9EC16A2B381 ON book_user_data (book_id)');
         $this->addSql('CREATE INDEX IDX_C5DCA9ECF987D8A8 ON book_user_data (user_created_id)');

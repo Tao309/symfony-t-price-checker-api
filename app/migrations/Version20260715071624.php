@@ -18,7 +18,7 @@ final class Version20260715071624 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('CREATE TABLE source_product_user_data (listen_price_value INT DEFAULT NULL, comment TEXT DEFAULT NULL, date_updated TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, date_created TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, source_product_id INT NOT NULL, user_created_id INT NOT NULL, PRIMARY KEY (source_product_id, user_created_id))');
+        $this->addSql('CREATE TABLE source_product_user_data (source_product_id INT NOT NULL, user_created_id INT NOT NULL, listen_price_value INT DEFAULT NULL, comment TEXT DEFAULT NULL, date_updated TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, date_created TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY (source_product_id, user_created_id))');
         $this->addSql('CREATE INDEX IDX_86F07B3C3930177E ON source_product_user_data (source_product_id)');
         $this->addSql('CREATE INDEX IDX_86F07B3CF987D8A8 ON source_product_user_data (user_created_id)');
         $this->addSql('CREATE UNIQUE INDEX spud_source_product_user ON source_product_user_data (source_product_id, user_created_id)');

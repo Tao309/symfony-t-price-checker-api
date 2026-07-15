@@ -2,7 +2,7 @@
 
 Реализация функционала плагина для мониторинга цен на маркетплейсах.
 
-Изначальная версия: https://github.com/Tao309/t-price-checker-api
+Первая (самописная) версия api: https://github.com/Tao309/t-price-checker-api
 
 
 ## Сущности:
@@ -27,6 +27,10 @@
 - Импорт товаров `php bin/console import:products`
 - Импорт цен по товарам `php bin/console import:product_prices`
 - Импорт стоков по товарам `php bin/console import:product_stocks`
+- Импорт пользовательских данных по книгам `php bin/console import:book_user_data`
+- Импорт источников товаров `php bin/console import:source_products`
+- Импорт пользовательских данных по источникам товаров `php bin/console import:source_product_user_data`
+- Импорт пользовательских данных по товарам `php bin/console import:product_user_data`
 
 Доступные опции:
 - `show-parsing-log` Показывать детали парсинга (по умолчанию да)
@@ -39,14 +43,13 @@
 - `docker-compose up --build -d`
 - переходим в bash контейнера php
 - `composer install`
-- `php bin/console doctrine:migration:migrate`
+- `php bin/console d:m:m`
 - `php bin/console doctrine:fixtures:load`
 - `php bin/console import:run-all --fake=0 --just-check-parsing=0`
 
 
 ## Реализовать:
 
-- добавить модель ProductUserData + импорт
 - добавить роли пользователей
 - реализовать апи методы v1 на модели через api-platform, со всеми связями
 - добавить ограничения в апи ресурсы

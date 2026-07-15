@@ -4,12 +4,12 @@ namespace App\Entity;
 
 use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\DateUpdatedTimestampTrait;
-use App\Repository\ProductUserDataRepository;
+use App\Repository\SourceProductUserDataRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
-#[ORM\Entity(repositoryClass: ProductUserDataRepository::class)]
+#[ORM\Entity(repositoryClass: SourceProductUserDataRepository::class)]
 #[ORM\UniqueConstraint(name: 'spud_source_product_user', columns: ['source_product_id', 'user_created_id'])]
 #[ORM\Table(options: ['comment' => 'Пользовательские данные по источникам товара'])]
 #[UniqueEntity(
