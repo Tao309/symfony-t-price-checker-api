@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Entity\Product;
@@ -38,7 +40,8 @@ class ImportProductsCommand extends CommonImportCommand
         private readonly CityRepository $cityRepository,
         private readonly ShopRepository $shopRepository,
         private readonly BookRepository $bookRepository,
-        #[Autowire('%kernel.project_dir%')] protected string $projectDir,
+        #[Autowire('%kernel.project_dir%')]
+        protected string $projectDir,
         protected EntityManagerInterface $em,
     ) {
         parent::__construct($projectDir, $em);
@@ -110,20 +113,32 @@ class ImportProductsCommand extends CommonImportCommand
             $book = $this->bookRepository->find($row[self::FIELD_BOOK_ID]);
 
             if (empty($book)) {
-                throw new \RuntimeException(sprintf('Не найдена book %s для товара %s', $row[self::FIELD_BOOK_ID], $row[self::FIELD_ID]));
+                throw new \RuntimeException(
+                    \sprintf(
+                        'Не найдена book %s для товара %s',
+                        $row[self::FIELD_BOOK_ID],
+                        $row[self::FIELD_ID]
+                    )
+                );
             }
 
             $entity->setBook($book);
         }
 
         if (empty($row[self::FIELD_SHOP_ID])) {
-            throw new \RuntimeException(sprintf('Поле shop пустое для товара %s', $row[self::FIELD_ID]));
+            throw new \RuntimeException(\sprintf('Поле shop пустое для товара %s', $row[self::FIELD_ID]));
         }
 
         $shop = $this->shopRepository->find($row[self::FIELD_SHOP_ID]);
 
         if (empty($shop)) {
-            throw new \RuntimeException(sprintf('Не найден shop %s для товара %s', $row[self::FIELD_SHOP_ID], $row[self::FIELD_ID]));
+            throw new \RuntimeException(
+                \sprintf(
+                    'Не найден shop %s для товара %s',
+                    $row[self::FIELD_SHOP_ID],
+                    $row[self::FIELD_ID]
+                )
+            );
         }
 
         $entity->setShop($shop);
@@ -132,20 +147,32 @@ class ImportProductsCommand extends CommonImportCommand
             $city = $this->cityRepository->find($row[self::FIELD_CITY_ID]);
 
             if (empty($city)) {
-                throw new \RuntimeException(sprintf('Не найден city %s для товара %s', $row[self::FIELD_CITY_ID], $row[self::FIELD_ID]));
+                throw new \RuntimeException(
+                    \sprintf(
+                        'Не найден city %s для товара %s',
+                        $row[self::FIELD_CITY_ID],
+                        $row[self::FIELD_ID]
+                    )
+                );
             }
 
             $entity->setCity($city);
         }
 
         if (empty($row[self::FIELD_AUTHOR_USER_ID])) {
-            throw new \RuntimeException(sprintf('Поле userCreated пустое для товара %s', $row[self::FIELD_ID]));
+            throw new \RuntimeException(\sprintf('Поле userCreated пустое для товара %s', $row[self::FIELD_ID]));
         }
 
         $user = $this->userRepository->find($row[self::FIELD_AUTHOR_USER_ID]);
 
         if (empty($user)) {
-            throw new \RuntimeException(sprintf('Не найден userCreated %s для товара %s', $row[self::FIELD_AUTHOR_USER_ID], $row[self::FIELD_ID]));
+            throw new \RuntimeException(
+                \sprintf(
+                    'Не найден userCreated %s для товара %s',
+                    $row[self::FIELD_AUTHOR_USER_ID],
+                    $row[self::FIELD_ID]
+                )
+            );
         }
 
         $entity->setUserCreated($user);

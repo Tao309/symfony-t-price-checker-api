@@ -1,41 +1,47 @@
 <?php
 
-$finder = (new PhpCsFixer\Finder())
-    ->in(__DIR__)
-    ->exclude('var')
-    ->notPath([
-        'config/bundles.php',
-        'config/reference.php',
-    ])
-;
+declare(strict_types=1);
 
-return (new PhpCsFixer\Config())
+use PhpCsFixer\Config;
+use PhpCsFixer\Finder;
+use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
+
+// Ensure the finder only searches existing directories
+$finder = (new Finder())
+    ->in([
+        __DIR__ . '/config',
+        __DIR__ . '/public',
+        __DIR__ . '/src',
+        __DIR__ . '/tests',
+    ])
+    ->append([
+        __DIR__ . '/bin/console',
+    ])
+    ->exclude([
+        'var',
+        'vendor',
+    ])
+    ->ignoreDotFiles(true)
+    ->ignoreVCS(true);
+
+return (new Config())
     ->setRules([
+        // Use the official Symfony rulesets
         '@Symfony' => true,
-//        '@PSR12' => true,
+        '@Symfony:risky' => true,
 
-//        'line_length_fixer' => [
-//            'max_line_length' => 120,
-//            'break_long_statements' => true,
-//            'inline_short_lines' => true,
-//        ],
+        // Use modern PHP 8 migration rules
+        '@PHP82Migration' => true,
+        '@PHP80Migration:risky' => true,
 
+        // Strict types enforcement (Optional but highly recommended)
+        'declare_strict_types' => true,
 
-//        'array_syntax' => ['syntax' => 'short'],
-//        'concat_space' => ['spacing' => 'one'],
-//        'increment_style' => ['style' => 'post'],
-//        'no_extra_blank_lines' => ['tokens' => [
-//            'extra',
-//            'parenthesis_brace_block',
-//            'square_brace_block',
-//            'throw',
-//            'use',
-//        ]],
-//        'no_superfluous_phpdoc_tags' => false,
-//        'phpdoc_align' => false,
-//        'phpdoc_annotation_without_dot' => false,
-//        'trailing_comma_in_multiline_array' => false,
-//        'yoda_style' => false
+        // Custom overrides or fine-tuning
+        'yoda_style' => false, // Set to true if you prefer Yoda-style conditions
+        'concat_space' => ['spacing' => 'one'],
+        'single_line_throw' => false,
     ])
+    ->setRiskyAllowed(true)
     ->setFinder($finder)
-;
+    ->setParallelConfig(ParallelConfigFactory::detect()); // Enables fast, multi-core analysis

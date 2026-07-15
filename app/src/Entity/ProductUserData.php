@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Entity\Trait\DateCreatedTimestampTrait;
@@ -11,8 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ProductUserDataRepository::class)]
 class ProductUserData
 {
-    use DateUpdatedTimestampTrait;
     use DateCreatedTimestampTrait;
+    use DateUpdatedTimestampTrait;
 
     #[ORM\Id]
     #[ORM\ManyToOne]

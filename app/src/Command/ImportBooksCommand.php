@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Entity\Book;
@@ -56,7 +58,8 @@ class ImportBooksCommand extends CommonImportCommand
         private readonly BookSeriesRepository $bookSeriesRepository,
         private readonly BookPublishingBrandRepository $bookPublishingBrandRepository,
         private readonly BookPublishingHouseRepository $bookPublishingHouseRepository,
-        #[Autowire('%kernel.project_dir%')] protected string $projectDir,
+        #[Autowire('%kernel.project_dir%')]
+        protected string $projectDir,
         protected EntityManagerInterface $em,
     ) {
         parent::__construct($projectDir, $em);
@@ -101,7 +104,7 @@ class ImportBooksCommand extends CommonImportCommand
     {
         // Добавляем авторов книг из файла с книгами
         $batchSize = 500;
-        $totalRecords = count($this->importData);
+        $totalRecords = \count($this->importData);
 
         $this->io->progressStart($totalRecords);
 
@@ -121,7 +124,9 @@ class ImportBooksCommand extends CommonImportCommand
                 $authorValue = $this->importData[$i][self::FIELD_AUTHOR];
 
                 if (empty($authorValue)) {
-                    throw new \RuntimeException(sprintf('Поле автора пустое в книге %s', $this->importData[$i][self::FIELD_ID]));
+                    throw new \RuntimeException(
+                        \sprintf('Поле автора пустое в книге %s', $this->importData[$i][self::FIELD_ID])
+                    );
                 }
 
                 $this->io->progressAdvance();
@@ -157,7 +162,7 @@ class ImportBooksCommand extends CommonImportCommand
             }
 
             $this->io->success('Завершено добавление авторов книг');
-            $this->io->section('Добавлено BookAuthor: '.count($this->authorAdded));
+            $this->io->section('Добавлено BookAuthor: ' . \count($this->authorAdded));
             if ($this->showParsingLog) {
                 $this->io->table(['firstName', 'lastName'], $this->authorAdded);
             }
@@ -166,7 +171,7 @@ class ImportBooksCommand extends CommonImportCommand
                 $this->em->rollback();
             }
 
-            throw new \RuntimeException('Ошибка при записи в БД BookAuthor: '.$e->getMessage());
+            throw new \RuntimeException('Ошибка при записи в БД BookAuthor: ' . $e->getMessage());
         }
 
         $this->io->progressFinish();
@@ -212,8 +217,8 @@ class ImportBooksCommand extends CommonImportCommand
 
         $authorSplit = explode(' ', $authorFullName);
 
-        if (count($authorSplit) > 1) {
-            $firstNameSplit = array_slice($authorSplit, 0, -1);
+        if (\count($authorSplit) > 1) {
+            $firstNameSplit = \array_slice($authorSplit, 0, -1);
 
             return [
                 trim(implode(' ', $firstNameSplit)),
@@ -236,7 +241,13 @@ class ImportBooksCommand extends CommonImportCommand
         ]);
 
         if (empty($foundAuthor)) {
-            throw new \RuntimeException(sprintf('Не найден автор "%s" для книги %s', $row[self::FIELD_AUTHOR], $row[self::FIELD_ID]));
+            throw new \RuntimeException(
+                \sprintf(
+                    'Не найден автор "%s" для книги %s',
+                    $row[self::FIELD_AUTHOR],
+                    $row[self::FIELD_ID]
+                )
+            );
         }
 
         $book->setBookAuthor($foundAuthor);
@@ -251,7 +262,7 @@ class ImportBooksCommand extends CommonImportCommand
         $foundBindingType = $this->bookBindingTypeRepository->find($bindingTypeId);
 
         if (empty($foundBindingType)) {
-            throw new \RuntimeException(sprintf('BindingType %s is not found in repository', $bindingTypeId));
+            throw new \RuntimeException(\sprintf('BindingType %s is not found in repository', $bindingTypeId));
         }
 
         $book->setBindingType($foundBindingType);
@@ -266,7 +277,7 @@ class ImportBooksCommand extends CommonImportCommand
         $publishingHouse = $this->bookPublishingHouseRepository->find($publishingHouseId);
 
         if (empty($publishingHouse)) {
-            throw new \RuntimeException(sprintf('PublishingHouse %s is not found in repository', $publishingHouseId));
+            throw new \RuntimeException(\sprintf('PublishingHouse %s is not found in repository', $publishingHouseId));
         }
 
         $book->setPublishingHouse($publishingHouse);
@@ -281,7 +292,7 @@ class ImportBooksCommand extends CommonImportCommand
         $publishingBrand = $this->bookPublishingBrandRepository->find($publishingBrandId);
 
         if (empty($publishingBrand)) {
-            throw new \RuntimeException(sprintf('PublishingBrand %s is not found in repository', $publishingBrandId));
+            throw new \RuntimeException(\sprintf('PublishingBrand %s is not found in repository', $publishingBrandId));
         }
 
         $book->setPublishingBrand($publishingBrand);
@@ -296,7 +307,7 @@ class ImportBooksCommand extends CommonImportCommand
         $bookSeries = $this->bookSeriesRepository->find($bookSeriesId);
 
         if (empty($bookSeries)) {
-            throw new \RuntimeException(sprintf('BookSeries %s is not found in repository', $bookSeriesId));
+            throw new \RuntimeException(\sprintf('BookSeries %s is not found in repository', $bookSeriesId));
         }
 
         $book->setBookSeries($bookSeries);
@@ -311,7 +322,7 @@ class ImportBooksCommand extends CommonImportCommand
         $user = $this->userRepository->find($userId);
 
         if (empty($user)) {
-            throw new \RuntimeException(sprintf('User %s is not found in repository', $userId));
+            throw new \RuntimeException(\sprintf('User %s is not found in repository', $userId));
         }
 
         $book->setUserCreated($user);

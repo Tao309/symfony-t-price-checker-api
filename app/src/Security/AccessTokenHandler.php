@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Security;
 
 use App\Repository\AccessTokenRepository;
@@ -18,7 +20,7 @@ class AccessTokenHandler implements AccessTokenHandlerInterface
     {
         $accessToken = $this->repository->findOneByValue($accessToken);
 
-        if (null === $accessToken || !$accessToken->isValid) {
+        if (null === $accessToken || !$accessToken->isValid()) {
             throw new BadCredentialsException('Invalid credentials.');
         }
 

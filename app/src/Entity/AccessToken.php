@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\AccessTokenRepository;
@@ -11,7 +13,7 @@ class AccessToken
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    public int $id { get => $this->id; }
+    public int $id;
 
     #[ORM\Column(length: 255, unique: true)]
     public string $token;
@@ -22,7 +24,13 @@ class AccessToken
     #[ORM\Column]
     public \DateTimeImmutable $expiresAt;
 
-    public bool $isValid {
-        get => $this->expiresAt > new \DateTimeImmutable();
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function isValid(): bool
+    {
+        return $this->expiresAt > new \DateTimeImmutable();
     }
 }

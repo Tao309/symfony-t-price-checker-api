@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Command\Exception\SkipRowImportException;
@@ -41,7 +43,8 @@ abstract class CommonImportCommand extends Command
     }
 
     public function __construct(
-        #[Autowire('%kernel.project_dir%')] protected string $projectDir,
+        #[Autowire('%kernel.project_dir%')]
+        protected string $projectDir,
         protected EntityManagerInterface $em,
     ) {
         parent::__construct();
@@ -77,8 +80,8 @@ abstract class CommonImportCommand extends Command
             return Command::FAILURE;
         }
 
-        $this->io->title('Завершение импорта: '.static::COMMAND_LABEL);
-        $this->io->section('Добавлено: '.$this->added);
+        $this->io->title('Завершение импорта: ' . static::COMMAND_LABEL);
+        $this->io->section('Добавлено: ' . $this->added);
 
         if ($this->isFake) {
             $this->io->warning('Фейковый запуск команды');
@@ -93,16 +96,16 @@ abstract class CommonImportCommand extends Command
     {
         $io = $this->io;
 
-        $io->title('Начало импорта: '.static::COMMAND_LABEL);
+        $io->title('Начало импорта: ' . static::COMMAND_LABEL);
         if ($this->isFake) {
             $io->warning('Фейковый запуск команды');
         }
 
         $io->section('Поиск данных для импорта из файла');
-        $filePath = $this->projectDir.$this->filePath;
+        $filePath = $this->projectDir . $this->filePath;
 
         if (empty($this->filePath) || !file_exists($filePath) || !is_readable($filePath)) {
-            throw new \RuntimeException(sprintf('Файл "%s" не найден или недоступен к чтению.', $filePath));
+            throw new \RuntimeException(\sprintf('Файл "%s" не найден или недоступен к чтению.', $filePath));
         }
 
         if (($handle = fopen($filePath, 'r')) === false) {
@@ -114,7 +117,7 @@ abstract class CommonImportCommand extends Command
         $headers = fgetcsv($handle, 0, ',');
         if ($this->showParsingLog) {
             $io->writeln(
-                sprintf('Заголовок: %s', implode(' | ', $headers))
+                \sprintf('Заголовок: %s', implode(' | ', $headers))
             );
         }
 
@@ -124,7 +127,7 @@ abstract class CommonImportCommand extends Command
 
             if ($this->showParsingLog) {
                 $io->writeln(
-                    sprintf('Строка %d: %s', $rowCount, implode(' | ', $row))
+                    \sprintf('Строка %d: %s', $rowCount, implode(' | ', $row))
                 );
             }
 
@@ -147,7 +150,7 @@ abstract class CommonImportCommand extends Command
         $this->io->title('Запись в БД...');
 
         $batchSize = 500;
-        $totalRecords = count($this->importData);
+        $totalRecords = \count($this->importData);
 
         $this->io->progressStart($totalRecords);
 
@@ -183,7 +186,7 @@ abstract class CommonImportCommand extends Command
                 } catch (SkipRowImportException) {
                     continue;
                 } catch (\Throwable $e) {
-                    $this->io->error(json_encode($importData, JSON_PRETTY_PRINT));
+                    $this->io->error(json_encode($importData, \JSON_PRETTY_PRINT));
 
                     throw $e;
                 }
@@ -200,7 +203,7 @@ abstract class CommonImportCommand extends Command
                 $this->em->rollback();
             }
 
-            throw new \RuntimeException('Ошибка при записи в БД: '.$e->getMessage());
+            throw new \RuntimeException('Ошибка при записи в БД: ' . $e->getMessage());
         }
 
         $this->io->progressFinish();

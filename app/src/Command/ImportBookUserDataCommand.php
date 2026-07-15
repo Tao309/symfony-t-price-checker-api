@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Command\Exception\SkipRowImportException;
@@ -33,7 +35,8 @@ class ImportBookUserDataCommand extends CommonImportCommand
     public function __construct(
         private readonly BookRepository $bookRepository,
         private readonly UserRepository $userRepository,
-        #[Autowire('%kernel.project_dir%')] protected string $projectDir,
+        #[Autowire('%kernel.project_dir%')]
+        protected string $projectDir,
         protected EntityManagerInterface $em,
     ) {
         parent::__construct($projectDir, $em);
@@ -41,11 +44,11 @@ class ImportBookUserDataCommand extends CommonImportCommand
 
     protected function runAtEnd(): void
     {
-        if (!count($this->notFound)) {
+        if (!\count($this->notFound)) {
             return;
         }
 
-        $this->io->error('Не найдено для связи с другой моделью: '.count($this->notFound));
+        $this->io->error('Не найдено для связи с другой моделью: ' . \count($this->notFound));
 
         if ($this->showParsingLog) {
             $this->io->table(['Поле', 'book', 'user', 'date'], $this->notFound);
@@ -77,7 +80,12 @@ class ImportBookUserDataCommand extends CommonImportCommand
 
         // Проставление книги
         if (empty($row[self::FIELD_BOOK_ID])) {
-            throw new \RuntimeException(sprintf('Поле product пустое для BookUserData с userId = %s', $row[self::FIELD_USER_CREATED_ID]));
+            throw new \RuntimeException(
+                \sprintf(
+                    'Поле product пустое для BookUserData с userId = %s',
+                    $row[self::FIELD_USER_CREATED_ID]
+                )
+            );
         }
 
         $book = $this->bookRepository->find($row[self::FIELD_BOOK_ID]);
@@ -97,13 +105,26 @@ class ImportBookUserDataCommand extends CommonImportCommand
 
         // Проставление пользователя
         if (empty($row[self::FIELD_USER_CREATED_ID])) {
-            throw new \RuntimeException(sprintf('Поле userCreated пустое для BookUserData с bookId = %s и dateCreated = %s', $row[self::FIELD_BOOK_ID], $row[self::FIELD_DATE_CREATED]));
+            throw new \RuntimeException(
+                \sprintf(
+                    'Поле userCreated пустое для BookUserData с bookId = %s и dateCreated = %s',
+                    $row[self::FIELD_BOOK_ID],
+                    $row[self::FIELD_DATE_CREATED]
+                )
+            );
         }
 
         $user = $this->userRepository->find($row[self::FIELD_USER_CREATED_ID]);
 
         if (empty($user)) {
-            throw new \RuntimeException(sprintf('Не найден userCreated %s для BookUserData с bookId = %s и dateCreated = %s', $row[self::FIELD_USER_CREATED_ID], $row[self::FIELD_BOOK_ID], $row[self::FIELD_DATE_CREATED]));
+            throw new \RuntimeException(
+                \sprintf(
+                    'Не найден userCreated %s для BookUserData с bookId = %s и dateCreated = %s',
+                    $row[self::FIELD_USER_CREATED_ID],
+                    $row[self::FIELD_BOOK_ID],
+                    $row[self::FIELD_DATE_CREATED]
+                )
+            );
         }
 
         $entity->setUserCreated($user);

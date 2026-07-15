@@ -12,6 +12,6 @@ up:
 build:
 	docker-compose up --build -d
 cs-check:
-	vendor/bin/php-cs-fixer check
+	vendor/bin/php-cs-fixer check && vendor/bin/phpcs ./src
 cs-fix:
-	vendor/bin/php-cs-fixer fix
+	vendor/bin/php-cs-fixer fix && vendor/bin/phpcbf ./src

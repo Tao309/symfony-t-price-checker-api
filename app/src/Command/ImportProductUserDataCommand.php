@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Command\Exception\SkipRowImportException;
@@ -38,7 +40,8 @@ class ImportProductUserDataCommand extends CommonImportCommand
     public function __construct(
         private readonly ProductRepository $productRepository,
         private readonly UserRepository $userRepository,
-        #[Autowire('%kernel.project_dir%')] protected string $projectDir,
+        #[Autowire('%kernel.project_dir%')]
+        protected string $projectDir,
         protected EntityManagerInterface $em,
     ) {
         parent::__construct($projectDir, $em);
@@ -46,11 +49,11 @@ class ImportProductUserDataCommand extends CommonImportCommand
 
     protected function runAtEnd(): void
     {
-        if (!count($this->notFound)) {
+        if (!\count($this->notFound)) {
             return;
         }
 
-        $this->io->error('Не найдено для связи с другой моделью: '.count($this->notFound));
+        $this->io->error('Не найдено для связи с другой моделью: ' . \count($this->notFound));
 
         if ($this->showParsingLog) {
             $this->io->table(['Поле', 'product', 'user', 'date'], $this->notFound);
@@ -104,7 +107,12 @@ class ImportProductUserDataCommand extends CommonImportCommand
 
         // Проставление товара
         if (empty($row[self::FIELD_PRODUCT_ID])) {
-            throw new \RuntimeException(sprintf('Поле product пустое для ProductUserData с userId = %s', $row[self::FIELD_USER_CREATED_ID]));
+            throw new \RuntimeException(
+                \sprintf(
+                    'Поле product пустое для ProductUserData с userId = %s',
+                    $row[self::FIELD_USER_CREATED_ID]
+                )
+            );
         }
 
         $product = $this->productRepository->find($row[self::FIELD_PRODUCT_ID]);
@@ -124,13 +132,26 @@ class ImportProductUserDataCommand extends CommonImportCommand
 
         // Проставление пользователя
         if (empty($row[self::FIELD_USER_CREATED_ID])) {
-            throw new \RuntimeException(sprintf('Поле userCreated пустое для ProductUserData с productId = %s и dateCreated = %s', $row[self::FIELD_PRODUCT_ID], $row[self::FIELD_DATE_CREATED]));
+            throw new \RuntimeException(
+                \sprintf(
+                    'Поле userCreated пустое для ProductUserData с productId = %s и dateCreated = %s',
+                    $row[self::FIELD_PRODUCT_ID],
+                    $row[self::FIELD_DATE_CREATED]
+                )
+            );
         }
 
         $user = $this->userRepository->find($row[self::FIELD_USER_CREATED_ID]);
 
         if (empty($user)) {
-            throw new \RuntimeException(sprintf('Не найден userCreated %s для ProductUserData с productId = %s и dateCreated = %s', $row[self::FIELD_USER_CREATED_ID], $row[self::FIELD_PRODUCT_ID], $row[self::FIELD_DATE_CREATED]));
+            throw new \RuntimeException(
+                \sprintf(
+                    'Не найден userCreated %s для ProductUserData с productId = %s и dateCreated = %s',
+                    $row[self::FIELD_USER_CREATED_ID],
+                    $row[self::FIELD_PRODUCT_ID],
+                    $row[self::FIELD_DATE_CREATED]
+                )
+            );
         }
 
         $entity->setUserCreated($user);

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
@@ -55,10 +57,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 class Book implements UserAwareInterface
 {
-    use DateUpdatedTimestampTrait;
     use DateCreatedTimestampTrait;
-    use UserAwareTrait;
+    use DateUpdatedTimestampTrait;
     use IdentifierTrait;
+    use UserAwareTrait;
 
     public const string GROUP_BOOK_READ = 'book:read';
     public const string GROUP_BOOK_WRITE = 'book:write';

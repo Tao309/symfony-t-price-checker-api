@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Entity\Trait\DateCreatedTimestampTrait;
@@ -14,12 +16,13 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 #[ORM\Table(options: ['comment' => 'Пользовательские данные по источникам товара'])]
 #[UniqueEntity(
     fields: ['source_product_id', 'user_created_id'],
-    message: 'SourceProductUserData с такой комбинацией полей уже существует')]
+    message: 'SourceProductUserData с такой комбинацией полей уже существует'
+)]
 #[ORM\HasLifecycleCallbacks]
 class SourceProductUserData
 {
-    use DateUpdatedTimestampTrait;
     use DateCreatedTimestampTrait;
+    use DateUpdatedTimestampTrait;
 
     #[ORM\Id]
     #[ORM\ManyToOne]

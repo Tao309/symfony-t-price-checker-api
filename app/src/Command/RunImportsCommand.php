@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -52,10 +54,10 @@ class RunImportsCommand extends Command
                 $command = $this->getApplication()->find($commandName);
 
                 if (!$command) {
-                    throw new \RuntimeException(sprintf('Команда "%s" не найдена', $commandName));
+                    throw new \RuntimeException(\sprintf('Команда "%s" не найдена', $commandName));
                 }
 
-                $io->info(sprintf('Запуск команды %s', $commandName));
+                $io->info(\sprintf('Запуск команды %s', $commandName));
 
                 $arguments = [
                     'command' => $commandName,
@@ -69,11 +71,11 @@ class RunImportsCommand extends Command
                 $returnCode = $command->run($subCommandInput, $output);
 
                 if (Command::SUCCESS === $returnCode) {
-                    $io->success(sprintf('Команда "%s" успешна завершена', $commandName));
+                    $io->success(\sprintf('Команда "%s" успешна завершена', $commandName));
                     continue;
                 }
 
-                throw new \RuntimeException(sprintf('Команда "%s" завершена с ошибкой', $commandName));
+                throw new \RuntimeException(\sprintf('Команда "%s" завершена с ошибкой', $commandName));
             }
 
             return Command::SUCCESS;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
@@ -30,8 +32,8 @@ use Symfony\Component\Serializer\Attribute\Groups;
 )]
 class BookPublishingBrand
 {
-    use DateUpdatedTimestampTrait;
     use DateCreatedTimestampTrait;
+    use DateUpdatedTimestampTrait;
     use IdentifierTrait;
 
     #[ORM\Id]

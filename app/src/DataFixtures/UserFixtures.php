@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DataFixtures;
 
 use App\Entity\AccessToken;
@@ -15,17 +17,28 @@ class UserFixtures extends Fixture
     public function __construct(
         protected readonly EntityManagerInterface $em,
         private readonly UserPasswordHasherInterface $passwordHasher,
-        #[Autowire('%env(TOKEN_ADMIN)%')] private readonly string $adminToken,
-        #[Autowire('%env(TOKEN_USER_1)%')] private readonly string $userTokenOne,
-        #[Autowire('%env(TOKEN_USER_2)%')] private readonly string $userTokenTwo,
-        #[Autowire('%env(TOKEN_USER_3)%')] private readonly string $userTokenThree,
-        #[Autowire('%env(NAME_USER_1)%')] private readonly string $userNameOne,
-        #[Autowire('%env(NAME_USER_2)%')] private readonly string $userNameTwo,
-        #[Autowire('%env(NAME_USER_3)%')] private readonly string $userNameThree,
-        #[Autowire('%env(ID_ADMIN)%')] private readonly string $userIdAdmin,
-        #[Autowire('%env(ID_USER_1)%')] private readonly string $userIdOne,
-        #[Autowire('%env(ID_USER_2)%')] private readonly string $userIdTwo,
-        #[Autowire('%env(ID_USER_3)%')] private readonly string $userIdThree,
+        #[Autowire('%env(TOKEN_ADMIN)%')]
+        private readonly string $adminToken,
+        #[Autowire('%env(TOKEN_USER_1)%')]
+        private readonly string $userTokenOne,
+        #[Autowire('%env(TOKEN_USER_2)%')]
+        private readonly string $userTokenTwo,
+        #[Autowire('%env(TOKEN_USER_3)%')]
+        private readonly string $userTokenThree,
+        #[Autowire('%env(NAME_USER_1)%')]
+        private readonly string $userNameOne,
+        #[Autowire('%env(NAME_USER_2)%')]
+        private readonly string $userNameTwo,
+        #[Autowire('%env(NAME_USER_3)%')]
+        private readonly string $userNameThree,
+        #[Autowire('%env(ID_ADMIN)%')]
+        private readonly string $userIdAdmin,
+        #[Autowire('%env(ID_USER_1)%')]
+        private readonly string $userIdOne,
+        #[Autowire('%env(ID_USER_2)%')]
+        private readonly string $userIdTwo,
+        #[Autowire('%env(ID_USER_3)%')]
+        private readonly string $userIdThree,
     ) {
     }
 
@@ -53,7 +66,7 @@ class UserFixtures extends Fixture
             $user = new User();
             $user->setId($this->userIdOne);
             $user->setUsername($this->userNameOne);
-            $user->setEmail($this->userNameOne.'@localhost.ru');
+            $user->setEmail($this->userNameOne . '@localhost.ru');
             $user->setPassword($this->passwordHasher->hashPassword($user, $this->userTokenOne));
             $user->setRoles(['ROLE_USER']);
             $manager->persist($user);
@@ -69,7 +82,7 @@ class UserFixtures extends Fixture
             $user = new User();
             $user->setId($this->userIdTwo);
             $user->setUsername($this->userNameTwo);
-            $user->setEmail($this->userNameTwo.'@localhost.ru');
+            $user->setEmail($this->userNameTwo . '@localhost.ru');
             $user->setPassword($this->passwordHasher->hashPassword($user, $this->userTokenTwo));
             $user->setRoles(['ROLE_USER']);
             $manager->persist($user);
@@ -85,7 +98,7 @@ class UserFixtures extends Fixture
             $user = new User();
             $user->setId($this->userIdThree);
             $user->setUsername($this->userNameThree);
-            $user->setEmail($this->userNameThree.'@localhost.ru');
+            $user->setEmail($this->userNameThree . '@localhost.ru');
             $user->setPassword($this->passwordHasher->hashPassword($user, $this->userTokenThree));
             $user->setRoles(['ROLE_USER']);
             $manager->persist($user);

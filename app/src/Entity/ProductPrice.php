@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Entity\Trait\DateCreatedTimestampTrait;
@@ -13,7 +15,8 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 #[ORM\UniqueConstraint(name: 'pp_product_user_date', columns: ['product_id', 'user_created_id', 'date_created_string'])]
 #[UniqueEntity(
     fields: ['product_id', 'user_created_id', 'date_created_string'],
-    message: 'ProductPrice с такой комбинацией полей уже существует')]
+    message: 'ProductPrice с такой комбинацией полей уже существует'
+)]
 #[ORM\HasLifecycleCallbacks]
 class ProductPrice implements UserAwareInterface
 {

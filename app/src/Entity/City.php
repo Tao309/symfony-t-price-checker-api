@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Entity\Trait\DateCreatedTimestampTrait;
@@ -13,8 +15,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\HasLifecycleCallbacks]
 class City
 {
-    use DateUpdatedTimestampTrait;
     use DateCreatedTimestampTrait;
+    use DateUpdatedTimestampTrait;
     use IdentifierTrait;
 
     #[ORM\Id]

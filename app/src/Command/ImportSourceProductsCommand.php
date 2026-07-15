@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Entity\SourceProduct;
@@ -29,7 +31,8 @@ class ImportSourceProductsCommand extends CommonImportCommand
     public function __construct(
         private readonly SourceProductTypeRepository $sourceProductTypeRepository,
         private readonly UserRepository $userRepository,
-        #[Autowire('%kernel.project_dir%')] protected string $projectDir,
+        #[Autowire('%kernel.project_dir%')]
+        protected string $projectDir,
         protected EntityManagerInterface $em,
     ) {
         parent::__construct($projectDir, $em);
@@ -65,26 +68,45 @@ class ImportSourceProductsCommand extends CommonImportCommand
 
         // Проставление типа источника товара
         if (empty($row[self::FIELD_SOURCE_PRODUCT_TYPE_ID])) {
-            throw new \RuntimeException(sprintf('Поле sourceProductType пустое для SourceProduct с id = %s', $row[self::FIELD_ID]));
+            throw new \RuntimeException(
+                \sprintf('Поле sourceProductType пустое для SourceProduct с id = %s', $row[self::FIELD_ID])
+            );
         }
 
         $sourceProductType = $this->sourceProductTypeRepository->find($row[self::FIELD_SOURCE_PRODUCT_TYPE_ID]);
 
         if (empty($sourceProductType)) {
-            throw new \RuntimeException(sprintf('Не найден sourceProductType с id = %s для SourceProduct с id = %s', $row[self::FIELD_SOURCE_PRODUCT_TYPE_ID], $row[self::FIELD_ID]));
+            throw new \RuntimeException(
+                \sprintf(
+                    'Не найден sourceProductType с id = %s для SourceProduct с id = %s',
+                    $row[self::FIELD_SOURCE_PRODUCT_TYPE_ID],
+                    $row[self::FIELD_ID]
+                )
+            );
         }
 
         $entity->setSourceProductType($sourceProductType);
 
         // Проставление пользователя
         if (empty($row[self::FIELD_USER_CREATED_ID])) {
-            throw new \RuntimeException(sprintf('Поле userCreated пустое для SourceProduct с id = %s', $row[self::FIELD_ID]));
+            throw new \RuntimeException(
+                \sprintf(
+                    'Поле userCreated пустое для SourceProduct с id = %s',
+                    $row[self::FIELD_ID]
+                )
+            );
         }
 
         $user = $this->userRepository->find($row[self::FIELD_USER_CREATED_ID]);
 
         if (empty($user)) {
-            throw new \RuntimeException(sprintf('Не найден userCreated с id = %s для SourceProduct с id = %s', $row[self::FIELD_USER_CREATED_ID], $row[self::FIELD_ID]));
+            throw new \RuntimeException(
+                \sprintf(
+                    'Не найден userCreated с id = %s для SourceProduct с id = %s',
+                    $row[self::FIELD_USER_CREATED_ID],
+                    $row[self::FIELD_ID]
+                )
+            );
         }
 
         $entity->setUserCreated($user);

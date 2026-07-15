@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
@@ -32,8 +34,8 @@ use Symfony\Component\Serializer\Attribute\Groups;
 )]
 class BookAuthor
 {
-    use DateUpdatedTimestampTrait;
     use DateCreatedTimestampTrait;
+    use DateUpdatedTimestampTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -99,7 +101,7 @@ class BookAuthor
 
     public function getFullName(): string
     {
-        return trim($this->getFirstName().' '.$this->getLastName());
+        return trim($this->getFirstName() . ' ' . $this->getLastName());
     }
 
     /**

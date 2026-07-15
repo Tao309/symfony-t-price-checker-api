@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Entity\Trait\DateCreatedTimestampTrait;
@@ -14,10 +16,10 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\HasLifecycleCallbacks]
 class Product implements UserAwareInterface
 {
-    use DateUpdatedTimestampTrait;
     use DateCreatedTimestampTrait;
-    use UserAwareTrait;
+    use DateUpdatedTimestampTrait;
     use IdentifierTrait;
+    use UserAwareTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
