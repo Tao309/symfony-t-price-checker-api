@@ -42,6 +42,8 @@ class RunImportsCommand extends Command
             'import:product_prices',
             'import:product_stocks',
             'import:book_user_data',
+            'import:source_products',
+            'import:source_product_user_data',
         ];
 
         try {

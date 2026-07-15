@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\DateUpdatedTimestampTrait;
+use App\Entity\Trait\IdentifierTrait;
 use App\Repository\SourceProductRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -14,6 +15,7 @@ class SourceProduct
 {
     use DateUpdatedTimestampTrait;
     use DateCreatedTimestampTrait;
+    use IdentifierTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -36,11 +38,6 @@ class SourceProduct
 
     #[ORM\Column]
     private ?\DateTimeImmutable $dateCreated = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getSourceProductType(): ?SourceProductType
     {

@@ -18,7 +18,7 @@ services:
       context: ./docker/php-fpm
     volumes:
       - ./app:/var/www/html
-      - ./docker/php-fpm/php.ini:/usr/local/etc/php/php.ini
+#      - ./docker/php-fpm/php.ini:/usr/local/etc/php/php.ini
       - ./docker/php-fpm/custom.ini:/usr/local/etc/php/conf.d/custom.ini
 #    environment:
 #      XDEBUG_CONFIG: 'idekey=PHPSTORM remote_host=host.docker.internal remote_port=9000 remote_autostart=1 remote_enable=1 remote_mode=req remote_connect_back=0'
