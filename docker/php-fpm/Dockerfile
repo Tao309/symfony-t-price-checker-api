@@ -1,5 +1,7 @@
 FROM php:8.5.8-fpm
 
+ARG XDEBUG_VERSION="xdebug-3.5.3"
+
 WORKDIR /var/www/html
 
 RUN apt-get update && apt-get install -y \
@@ -12,6 +14,8 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN pecl install ${XDEBUG_VERSION} && docker-php-ext-enable xdebug
 
 RUN docker-php-ext-install mbstring exif pcntl bcmath gd
 
