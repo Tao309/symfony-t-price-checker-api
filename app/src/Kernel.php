@@ -18,4 +18,22 @@ class Kernel extends BaseKernel
     {
         return ['prod', 'dev', 'test'];
     }
+
+    public function getCacheDir(): string
+    {
+        if ($this->getEnvironment() === 'dev') {
+            return '/tmp/symfony/cache/' . $this->environment;
+        }
+
+        return parent::getCacheDir();
+    }
+
+    public function getLogDir(): string
+    {
+        if ($this->getEnvironment() === 'dev') {
+            return '/tmp/symfony/log' . $this->environment;
+        }
+
+        return parent::getLogDir();
+    }
 }

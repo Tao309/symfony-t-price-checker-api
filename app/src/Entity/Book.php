@@ -68,84 +68,84 @@ class Book implements UserAwareInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups([self::GROUP_BOOK_READ])]
+    #[Groups([self::GROUP_BOOK_READ, Product::GROUP_PRODUCT_READ, BookAuthor::GROUP_BOOK_AUTHOR_READ])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ, BookAuthor::GROUP_BOOK_AUTHOR_READ])]
     #[Assert\NotNull(groups: [self::GROUP_BOOK_WRITE])]
     #[Assert\Length(min: 5, max: 255, groups: [self::GROUP_BOOK_WRITE])]
     private ?string $title = null;
 
     #[ORM\ManyToOne(inversedBy: 'books')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
     #[Assert\NotNull(groups: [self::GROUP_BOOK_WRITE])]
     private ?BookAuthor $bookAuthor = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
     private ?string $originalTitle = null;
 
     #[ORM\Column(length: 30, nullable: true)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
     #[Assert\Length(max: 20, groups: [self::GROUP_BOOK_WRITE])]
     private ?string $isbn = null;
 
     #[ORM\Column(type: Types::SMALLINT, nullable: true)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
     private ?int $pages = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
     private ?int $circulation = null;
 
     #[ORM\Column(length: 20, nullable: true)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
     #[Assert\Positive(groups: [self::GROUP_BOOK_WRITE])]
     private ?string $size = null;
 
     #[ORM\Column(type: Types::SMALLINT)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
     #[Assert\Positive(groups: [self::GROUP_BOOK_WRITE])]
     private ?int $publishYear = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
     #[Assert\NotNull(groups: [self::GROUP_BOOK_WRITE])]
     private ?BookBindingType $bindingType = null;
 
     #[ORM\ManyToOne]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
     private ?BookPublishingHouse $publishingHouse = null;
 
     #[ORM\ManyToOne]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
     private ?BookPublishingBrand $publishingBrand = null;
 
     #[ORM\ManyToOne]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
     private ?BookSeries $bookSeries = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
     private ?string $livelibId = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
     private ?string $goodreadsId = null;
 
     #[ORM\Column(length: 100, nullable: true)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
     private ?string $fantlabId = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
     private ?float $livelibRating = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
     private ?float $goodreadsRating = null;
 
     #[ORM\ManyToOne]

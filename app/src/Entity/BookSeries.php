@@ -24,7 +24,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             openapi: new Operation(
                 summary: 'Получить серию книги',
             ),
-            normalizationContext: ['groups' => [Book::GROUP_BOOK_READ]],
+            normalizationContext: ['groups' => [Book::GROUP_BOOK_READ, Product::GROUP_PRODUCT_READ]],
         ),
     ],
     order: ['id' => 'DESC'],
@@ -39,19 +39,19 @@ class BookSeries
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups([Book::GROUP_BOOK_READ])]
+    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_PRODUCT_READ])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups([Book::GROUP_BOOK_READ, Book::GROUP_BOOK_WRITE])]
+    #[Groups([Book::GROUP_BOOK_READ, Book::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
     private ?string $name = null;
 
     #[ORM\Column]
-    #[Groups([Book::GROUP_BOOK_READ])]
+    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_PRODUCT_READ])]
     private ?\DateTimeImmutable $dateUpdated = null;
 
     #[ORM\Column]
-    #[Groups([Book::GROUP_BOOK_READ])]
+    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_PRODUCT_READ])]
     private ?\DateTimeImmutable $dateCreated = null;
 
     public function getName(): ?string

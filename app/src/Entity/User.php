@@ -38,14 +38,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups([Book::GROUP_BOOK_READ])]
+    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_PRODUCT_READ])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
     private ?string $email = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups([Book::GROUP_BOOK_READ])]
+    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_PRODUCT_READ])]
     private ?string $username = null;
 
     /**
