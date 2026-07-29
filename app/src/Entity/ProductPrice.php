@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
@@ -42,7 +40,6 @@ use Symfony\Component\Serializer\Attribute\Groups;
     order: ['date_created' => 'ASC'],
     security: "is_granted('ROLE_USER')",
 )]
-#[ApiFilter(SearchFilter::class, properties: ['userCreated.id' => 'exact'])]
 class ProductPrice implements UserAwareInterface
 {
     use DateCreatedStringTrait;

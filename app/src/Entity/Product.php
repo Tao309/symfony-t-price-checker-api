@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
@@ -61,6 +63,12 @@ use Symfony\Component\Serializer\Attribute\MaxDepth;
     security: "is_granted('ROLE_USER')",
     provider: ProductProvider::class
 )]
+#[ApiFilter(SearchFilter::class, properties: [
+    'userCreated' => 'exact',
+    'shop' => 'exact',
+    'shopProductId' => 'exact',
+    'productUserData.userCreated' => 'exact',
+])]
 class Product implements UserAwareInterface
 {
     use DateCreatedTimestampTrait;
@@ -133,6 +141,11 @@ class Product implements UserAwareInterface
     #[MaxDepth(1)]
     #[Groups([self::GROUP_PRODUCT_READ])]
     private Collection $stocks;
+
+    #[ORM\OneToOne(targetEntity: ProductUserData::class, mappedBy: 'product')]
+    #[MaxDepth(1)]
+    #[Groups([self::GROUP_PRODUCT_READ])]
+    private ?ProductUserData $productUserData = null;
 
     public function __construct()
     {
@@ -278,6 +291,18 @@ class Product implements UserAwareInterface
                 $productStock->setProduct(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getProductUserData(): ?ProductUserData
+    {
+        return $this->productUserData;
+    }
+
+    public function setProductUserData(?ProductUserData $productUserData): static
+    {
+        $this->productUserData = $productUserData;
 
         return $this;
     }

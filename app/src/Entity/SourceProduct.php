@@ -13,6 +13,7 @@ use App\Entity\Trait\IdentifierTrait;
 use App\Repository\SourceProductRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\MaxDepth;
 
 #[ORM\Entity(repositoryClass: SourceProductRepository::class)]
 #[ORM\Table(options: ['comment' => 'Источник товара'])]
@@ -64,6 +65,11 @@ class SourceProduct
     #[Groups([Product::GROUP_PRODUCT_READ])]
     private ?\DateTimeImmutable $dateCreated = null;
 
+    #[ORM\OneToOne(targetEntity: SourceProductUserData::class, mappedBy: 'sourceProduct')]
+    #[MaxDepth(1)]
+    #[Groups([Product::GROUP_PRODUCT_READ])]
+    private ?SourceProductUserData $sourceProductUserData = null;
+
     public function getSourceProductType(): ?SourceProductType
     {
         return $this->sourceProductType;
@@ -96,6 +102,18 @@ class SourceProduct
     public function setUserCreated(?User $userCreated): static
     {
         $this->userCreated = $userCreated;
+
+        return $this;
+    }
+
+    public function getSourceProductUserData(): ?SourceProductUserData
+    {
+        return $this->sourceProductUserData;
+    }
+
+    public function setSourceProductUserData(SourceProductUserData $sourceProductUserData): static
+    {
+        $this->sourceProductUserData = $sourceProductUserData;
 
         return $this;
     }

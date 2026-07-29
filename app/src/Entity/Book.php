@@ -18,6 +18,7 @@ use App\Repository\BookRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\MaxDepth;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
@@ -160,6 +161,11 @@ class Book implements UserAwareInterface
     #[ORM\Column]
     #[Groups([self::GROUP_BOOK_READ])]
     private ?\DateTimeImmutable $dateCreated = null;
+
+    #[ORM\OneToOne(targetEntity: BookUserData::class, mappedBy: 'book')]
+    #[MaxDepth(1)]
+    #[Groups([Product::GROUP_PRODUCT_READ])]
+    private ?BookUserData $bookUserData = null;
 
     public function getTitle(): ?string
     {
@@ -361,6 +367,18 @@ class Book implements UserAwareInterface
     public function setGoodreadsRating(?float $goodreadsRating): static
     {
         $this->goodreadsRating = $goodreadsRating;
+
+        return $this;
+    }
+
+    public function getBookUserData(): ?BookUserData
+    {
+        return $this->bookUserData;
+    }
+
+    public function setBookUserData(?BookUserData $bookUserData): static
+    {
+        $this->bookUserData = $bookUserData;
 
         return $this;
     }

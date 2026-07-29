@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Link;
 use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\DateUpdatedTimestampTrait;
 use App\Repository\BookUserDataRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: BookUserDataRepository::class)]
 #[ORM\UniqueConstraint(name: 'bud_book_user', columns: ['book_id', 'user_created_id'])]
@@ -18,6 +23,18 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
     fields: ['book_id', 'user_created_id'],
     message: 'BookUserData с такой комбинацией полей уже существует'
 )]
+#[ApiResource(
+    operations: [
+        new Get(
+            uriTemplate: '/book_user_data/{book}/{userCreated}',
+            uriVariables: [
+                'book' => new Link(fromClass: BookUserData::class, identifiers: ['book.id']),
+                'userCreated' => new Link(fromClass: BookUserData::class, identifiers: ['userCreated.id']),
+            ],
+        ),
+    ],
+    security: "is_granted('ROLE_USER')"
+)]
 #[ORM\HasLifecycleCallbacks]
 class BookUserData
 {
@@ -25,26 +42,34 @@ class BookUserData
     use DateUpdatedTimestampTrait;
 
     #[ORM\Id]
-    #[ORM\ManyToOne]
+    #[ApiProperty(identifier: true)]
+    #[ORM\OneToOne(targetEntity: Book::class, inversedBy: 'bookUserData')]
     private ?Book $book;
 
     #[ORM\Id]
+    #[ApiProperty(identifier: true)]
     #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
     private ?User $userCreated;
 
     #[ORM\Column]
+    #[Groups([Product::GROUP_PRODUCT_READ])]
     private ?\DateTimeImmutable $releaseDate = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups([Product::GROUP_PRODUCT_READ])]
     private ?int $listenPriceValue = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups([Product::GROUP_PRODUCT_READ])]
     private ?string $comment = null;
 
     #[ORM\Column]
+    #[Groups([Product::GROUP_PRODUCT_READ])]
     private ?\DateTimeImmutable $dateUpdated = null;
 
     #[ORM\Column]
+    #[Groups([Product::GROUP_PRODUCT_READ])]
     private ?\DateTimeImmutable $dateCreated = null;
 
     public function getBook(): Book
