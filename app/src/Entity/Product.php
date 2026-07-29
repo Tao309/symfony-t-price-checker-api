@@ -26,6 +26,7 @@ use Symfony\Component\Serializer\Attribute\MaxDepth;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 #[ORM\Table(options: ['comment' => 'Продукт'])]
+#[ORM\Index(name: 'idx_product_shop_id_product_id', fields: ['shop', 'shopProduct'])]
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource(
     operations: [
@@ -64,10 +65,7 @@ use Symfony\Component\Serializer\Attribute\MaxDepth;
     provider: ProductProvider::class
 )]
 #[ApiFilter(SearchFilter::class, properties: [
-    'userCreated' => 'exact',
-    'shop' => 'exact',
     'shopProductId' => 'exact',
-    'productUserData.userCreated' => 'exact',
 ])]
 class Product implements UserAwareInterface
 {

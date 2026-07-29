@@ -8,15 +8,18 @@ use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Extension\QueryItemExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
+use App\Cache\ShopCacheProvider;
 use App\Entity\Product;
-use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\RequestStack;
 
-final class CurrentUserExtension implements QueryCollectionExtensionInterface, QueryItemExtensionInterface
+final readonly class ShopFilterExtension implements QueryCollectionExtensionInterface, QueryItemExtensionInterface
 {
     public function __construct(
-        private Security $security
+        private Security $security,
+        private ShopCacheProvider $shopCacheProvider,
+        private RequestStack $requestStack,
     ) {
     }
 
@@ -30,7 +33,7 @@ final class CurrentUserExtension implements QueryCollectionExtensionInterface, Q
         $this->addWhere($queryBuilder, $resourceClass);
     }
 
-    private function addWhere(QueryBuilder $queryBuilder, string $resourceClass): void
+    private function addWhere(QueryBuilder $qb, string $resourceClass): void
     {
         $user = $this->security->getUser();
         if (!$user) {
@@ -41,37 +44,24 @@ final class CurrentUserExtension implements QueryCollectionExtensionInterface, Q
             return;
         }
 
-        $joins = $queryBuilder->getDQLPart('join');
-        $rootAlias = $queryBuilder->getRootAliases()[0];
+        $rootAlias = $qb->getRootAliases()[0];
 
-        if (!isset($joins[$rootAlias])) {
-            return;
+        $shopType = null;
+        $request = $this->requestStack->getCurrentRequest();
+        if ($request) {
+            $payload = $request->getPayload();
+            $shopType = $payload->get('shop_type');
         }
 
-        $filterFields = [
-            'bookUserData',
-            'sourceProductUserData',
-        ];
+        $validShopId = null;
 
-        foreach ($joins[$rootAlias] as $key => $joinPart) {
-            $joinAlias = $joinPart->getAlias();
-
-            [, $field] = explode('.', $joinPart->getJoin());
-
-            if (!\in_array($field, $filterFields)) {
-                continue;
+        foreach ($this->shopCacheProvider->get() as $shopData) {
+            if ($shopType && $shopData['type'] === $shopType) {
+                $validShopId = $shopData['id'];
+                break;
             }
-
-            $joins[$rootAlias][$key] = new Join(
-                joinType: 'LEFT',
-                join: $joinPart->getJoin(),
-                alias: $joinAlias,
-                conditionType: Join::WITH,
-                condition: \sprintf('%s.userCreated = %s', $joinAlias, $user->getId())
-            );
         }
 
-        $joins[$rootAlias] = array_values($joins[$rootAlias]);
-        $queryBuilder->add('join', $joins);
+        $qb->andWhere(\sprintf('%s.shop = %s', $rootAlias, $validShopId));
     }
 }

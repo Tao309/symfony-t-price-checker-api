@@ -8,7 +8,6 @@ use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use App\Cache\ShopCacheProvider;
 use App\Entity\Product;
 use Doctrine\Common\Collections\Criteria;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -24,7 +23,6 @@ final class ProductProvider implements ProviderInterface
         private readonly ProviderInterface $itemProvider,
         private Security $security,
         private RequestStack $requestStack,
-        private ShopCacheProvider $shopCacheProvider,
     ) {
     }
 
@@ -42,19 +40,6 @@ final class ProductProvider implements ProviderInterface
             return null;
         }
 
-        $validShopId = false;
-
-        foreach ($this->shopCacheProvider->get() as $shopData) {
-            if ($shopData['type'] === $shopType) {
-                $validShopId = $shopData['id'];
-                break;
-            }
-        }
-
-        if (!$validShopId) {
-            return null;
-        }
-
         $user = $this->security->getUser();
 
         if (!$user) {
@@ -62,11 +47,6 @@ final class ProductProvider implements ProviderInterface
         }
 
         $context['filters'] ??= [];
-        $context['filters']['userCreated'] = $user->getId();
-        $context['filters']['shop'] = $validShopId;
-        $context['filters']['productUserData.userCreated'] = $user->getId();
-        $context['filters']['sourceProduct.sourceProductUserData.userCreated'] = $user->getId();
-        $context['filters']['book.bookUserData.userCreated'] = $user->getId();
 
         if ($operation instanceof CollectionOperationInterface) {
             $ids = $payload->get('ids');
@@ -75,11 +55,12 @@ final class ProductProvider implements ProviderInterface
                 return null;
             }
 
+            // @todo Убрать тестовые данные
             // > tests
 
             // Товар с book
-            $context['filters']['shop'] = 3;
-            $context['filters']['shopProductId'] = ['2919092'];
+            //            $context['filters']['shop'] = 3;
+            //            $context['filters']['shopProductId'] = ['2919092'];
 
             // Товар с source_product
             //            $context['filters']['shop'] = 1;
