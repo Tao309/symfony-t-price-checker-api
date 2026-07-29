@@ -30,3 +30,8 @@ services:
         tags:
             - { name: api_platform.doctrine.orm.query_extension.collection, priority: 10 }
             - { name: api_platform.doctrine.orm.query_extension.item }
+
+    # Проверка значений пришедших в headers
+    App\EventListener\HeaderCheckListener:
+        tags:
+            - { name: 'kernel.event_listener', event: 'kernel.request', method: 'onKernelRequest' }

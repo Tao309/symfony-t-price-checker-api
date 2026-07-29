@@ -55,6 +55,8 @@ final class ProductProvider implements ProviderInterface
                 return null;
             }
 
+            $context['filters']['shopProductId'] = $shopProductIds;
+
             // @todo Убрать тестовые данные
             // > tests
 

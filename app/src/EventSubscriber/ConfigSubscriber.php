@@ -1,0 +1,89 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\EventSubscriber;
+
+use App\Cache\BookBindingTypesCacheProvider;
+use App\Cache\BookPublishingBrandCacheProvider;
+use App\Cache\BookPublishingHouseCacheProvider;
+use App\Cache\BookSeriesCacheProvider;
+use App\Cache\SourceProductTypesCacheProvider;
+use App\Entity\Shop;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
+
+final readonly class ConfigSubscriber implements EventSubscriberInterface
+{
+    public function __construct(
+        private BookSeriesCacheProvider $bookSeriesCacheProvider,
+        private BookPublishingBrandCacheProvider $bookPublishingBrandCacheProvider,
+        private BookPublishingHouseCacheProvider $bookPublishingHouseCacheProvider,
+        private BookBindingTypesCacheProvider $bindingTypesCacheProvider,
+        private SourceProductTypesCacheProvider $sourceProductTypesCacheProvider,
+        #[Autowire('%env(URL_WB)%')]
+        private readonly string $urlWb,
+        #[Autowire('%env(URL_OZON)%')]
+        private readonly string $urlOzon,
+        #[Autowire('%env(URL_CHITAI_GOROD)%')]
+        private readonly string $urlChitaiGorod,
+        #[Autowire('%env(URL_FFAN)%')]
+        private readonly string $urlFfan,
+        #[Autowire('%env(URL_KNIGOFAN)%')]
+        private readonly string $urlKnigofan,
+        #[Autowire('%env(APP_VERSION)%')]
+        private readonly string $appVersion,
+    ) {
+    }
+
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            KernelEvents::RESPONSE => 'onKernelResponse',
+        ];
+    }
+
+    public function onKernelResponse(ResponseEvent $event): void
+    {
+        if (!$event->isMainRequest()) {
+            return;
+        }
+
+        $request = $event->getRequest();
+
+        if (!($request->isMethod(Request::METHOD_GET) || $request->isMethod(Request::METHOD_POST))) {
+            return;
+        }
+
+        $response = $event->getResponse();
+
+        if (!str_contains($response->headers->get('Content-Type'), 'application/ld+json')) {
+            return;
+        }
+
+        $data = json_decode($response->getContent(), true) ?? [];
+
+        $data['config'] = [
+            'processed_at' => date('Y-m-d H:i:s'),
+            'source_product_types' => $this->sourceProductTypesCacheProvider->get(),
+            'book_binding_types' => $this->bindingTypesCacheProvider->get(),
+            'book_publishing_houses' => $this->bookPublishingHouseCacheProvider->get(),
+            'book_publishing_brands' => $this->bookPublishingBrandCacheProvider->get(),
+            'book_series' => $this->bookSeriesCacheProvider->get(),
+            'shop_urls' => [
+                Shop::TYPE_WILDBERRIES => $this->urlWb,
+                Shop::TYPE_OZON => $this->urlOzon,
+                Shop::TYPE_CHITAI_GOROD => $this->urlChitaiGorod,
+                Shop::TYPE_FFAN => $this->urlFfan,
+                Shop::TYPE_KNIGOFAN => $this->urlKnigofan,
+            ],
+            'access_rights' => [],
+            'app_version' => $this->appVersion ?? 'not-found-version',
+        ];
+
+        $response->setContent(json_encode($data));
+    }
+}
