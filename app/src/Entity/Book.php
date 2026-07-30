@@ -9,12 +9,14 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\OpenApi\Model;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\DateUpdatedTimestampTrait;
 use App\Entity\Trait\IdentifierTrait;
 use App\Entity\Trait\UserAwareTrait;
 use App\Repository\BookRepository;
+use App\State\BooksSearchProvider;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -31,13 +33,34 @@ use Symfony\Component\Validator\Constraints as Assert;
             openapi: new Operation(
                 summary: 'Получить книгу',
             ),
-            normalizationContext: ['groups' => [self::GROUP_BOOK_READ]]
+            normalizationContext: ['groups' => [self::GROUP_BOOK_READ]],
         ),
         new GetCollection(
             openapi: new Operation(
                 summary: 'Получить список книг',
             ),
             normalizationContext: ['groups' => [self::GROUP_BOOK_READ]],
+        ),
+        new GetCollection(
+            uriTemplate: '/books/search/{title}',
+            uriVariables: ['title'],
+            defaults: ['title' => ''],
+            requirements: ['title' => '.{3,}+'],
+            openapi: new Operation(
+                summary: 'Найти книгу по названию',
+                parameters: [
+                    new Model\Parameter(
+                        name: 'title',
+                        in: 'path',
+                        required: true,
+                        schema: [
+                            'type' => 'string',
+                        ]
+                    ),
+                ]
+            ),
+            normalizationContext: ['groups' => [self::GROUP_BOOK_READ]],
+            provider: BooksSearchProvider::class,
         ),
         new Post(
             openapi: new Operation(

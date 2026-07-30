@@ -33,24 +33,18 @@ final class ProductProvider implements ProviderInterface
             return null;
         }
 
-        $payload = $request->getPayload();
-        $shopType = $payload->get('shop_type');
-
-        if (!$shopType) {
-            return null;
-        }
-
         $user = $this->security->getUser();
 
         if (!$user) {
             return null;
         }
 
-        $context['filters'] ??= [];
-
         if ($operation instanceof CollectionOperationInterface) {
-            $ids = $payload->get('ids');
+            $context['filters'] ??= [];
+
+            $ids = $request->query->get('ids');
             $shopProductIds = explode(',', $ids);
+
             if (empty($shopProductIds)) {
                 return null;
             }
@@ -91,20 +85,14 @@ final class ProductProvider implements ProviderInterface
         $criteria = Criteria::create()->andWhere(Criteria::expr()->eq('userCreated', $user));
 
         $prices = $product->getPrices()->matching($criteria);
-
-        foreach ($product->getPrices() as $price) {
-            $product->removePrice($price);
-        }
+        $product->getPrices()->clear();
 
         foreach ($prices as $price) {
             $product->addPrice($price);
         }
 
         $stocks = $product->getStocks()->matching($criteria);
-
-        foreach ($product->getStocks() as $stock) {
-            $product->removeStock($stock);
-        }
+        $product->getStocks()->clear();
 
         foreach ($stocks as $stock) {
             $product->addStock($stock);

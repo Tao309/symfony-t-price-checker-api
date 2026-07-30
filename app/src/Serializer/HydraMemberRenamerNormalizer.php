@@ -35,10 +35,13 @@ readonly class HydraMemberRenamerNormalizer implements NormalizerInterface, Norm
                 $data['total'] = $data['totalItems'];
                 unset($data['totalItems']);
             }
+
             if (isset($data['member'])) {
                 $data['items'] = $data['member'];
                 unset($data['member']);
             }
+
+            $data['count'] = \count($data['items']) ?? [];
         }
 
         return $data;

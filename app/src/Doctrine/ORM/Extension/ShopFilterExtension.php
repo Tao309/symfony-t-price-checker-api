@@ -46,15 +46,10 @@ final readonly class ShopFilterExtension implements QueryCollectionExtensionInte
 
         $rootAlias = $qb->getRootAliases()[0];
 
-        $shopType = null;
         $request = $this->requestStack->getCurrentRequest();
-        if ($request) {
-            $payload = $request->getPayload();
-            $shopType = $payload->get('shop_type');
-        }
+        $shopType = $request->headers->get('shop-type');
+        $shopId = $this->shopCacheProvider->getShopIdByType($shopType);
 
-        $validShopId = $this->shopCacheProvider->getShopIdByType($shopType);
-
-        $qb->andWhere(\sprintf('%s.shop = %s', $rootAlias, $validShopId));
+        $qb->andWhere(\sprintf('%s.shop = %s', $rootAlias, $shopId));
     }
 }

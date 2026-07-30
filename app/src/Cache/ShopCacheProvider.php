@@ -17,8 +17,12 @@ class ShopCacheProvider extends CommonCacheProvider
         parent::__construct();
     }
 
-    public function getShopIdByType(string $shopType): ?int
+    public function getShopIdByType(?string $shopType): ?int
     {
+        if (!$shopType) {
+            return null;
+        }
+
         $validShopId = null;
 
         foreach ($this->get() as $shopData) {

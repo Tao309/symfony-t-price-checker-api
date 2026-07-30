@@ -28,20 +28,19 @@ final readonly class HeaderCheckListener
 
         $request = $event->getRequest();
 
-        $shopType = null;
-        if ($request) {
-            $payload = $request->getPayload();
-            $shopType = $payload->get('shop_type');
+        if ($request->getRequestUri() === '/api') {
+            return;
         }
+
+        $shopType = $request->headers->get('shop-type');
+        $requestedWith = $request->headers->get('x-requested-with');
+        $priceCheckerId = $request->headers->get('t-price-checker-id');
 
         $shopId = $this->shopCacheProvider->getShopIdByType($shopType);
 
         if (empty($shopId)) {
             throw new AccessDeniedHttpException('Missing or not correct required shop type');
         }
-
-        $requestedWith = $request->headers->get('x-requested-with');
-        $priceCheckerId = $request->headers->get('t-price-checker-id');
 
         if (empty($requestedWith) || empty($priceCheckerId)
             || empty($this->requestedWith) || empty($this->priceCheckerId)

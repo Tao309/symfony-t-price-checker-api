@@ -54,6 +54,10 @@ final readonly class ConfigSubscriber implements EventSubscriberInterface
 
         $request = $event->getRequest();
 
+        if ($request->getRequestUri() === '/api') {
+            return;
+        }
+
         if (!($request->isMethod(Request::METHOD_GET) || $request->isMethod(Request::METHOD_POST))) {
             return;
         }

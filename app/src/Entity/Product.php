@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\OpenApi\Model;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\DateUpdatedTimestampTrait;
@@ -41,8 +42,17 @@ use Symfony\Component\Serializer\Attribute\MaxDepth;
             ]
         ),
         new GetCollection(
+            uriVariables: [],
             openapi: new Operation(
                 summary: 'Получить список товаров',
+                parameters: [
+                    new Model\Parameter(
+                        name: 'ids',
+                        in: 'path',
+                        required: true,
+                        schema: ['type' => 'string']
+                    ),
+                ]
             ),
             normalizationContext: ['groups' => [self::GROUP_PRODUCT_READ]],
         ),
