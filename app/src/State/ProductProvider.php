@@ -57,19 +57,6 @@ final class ProductProvider implements ProviderInterface
 
             $context['filters']['shopProductId'] = $shopProductIds;
 
-            // @todo Убрать тестовые данные
-            // > tests
-
-            // Товар с book
-            //            $context['filters']['shop'] = 3;
-            //            $context['filters']['shopProductId'] = ['2919092'];
-
-            // Товар с source_product
-            //            $context['filters']['shop'] = 1;
-            //            $context['filters']['shopProductId'] = ['4104974100'];
-
-            // < tests
-
             $result = $this->collectionProvider->provide($operation, $uriVariables, $context);
 
             foreach ($result->getIterator() as $product) {

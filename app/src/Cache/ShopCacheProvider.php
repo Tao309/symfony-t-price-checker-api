@@ -17,6 +17,20 @@ class ShopCacheProvider extends CommonCacheProvider
         parent::__construct();
     }
 
+    public function getShopIdByType(string $shopType): ?int
+    {
+        $validShopId = null;
+
+        foreach ($this->get() as $shopData) {
+            if ($shopType && $shopData['type'] === $shopType) {
+                $validShopId = $shopData['id'];
+                break;
+            }
+        }
+
+        return $validShopId;
+    }
+
     protected function generateData(): array
     {
         return $this->shopRepository->findAllAsArray();

@@ -32,13 +32,13 @@ class UserFixtures extends Fixture
         #[Autowire('%env(NAME_USER_3)%')]
         private readonly string $userNameThree,
         #[Autowire('%env(ID_ADMIN)%')]
-        private readonly string $userIdAdmin,
+        private readonly int $userIdAdmin,
         #[Autowire('%env(ID_USER_1)%')]
-        private readonly string $userIdOne,
+        private readonly int $userIdOne,
         #[Autowire('%env(ID_USER_2)%')]
-        private readonly string $userIdTwo,
+        private readonly int $userIdTwo,
         #[Autowire('%env(ID_USER_3)%')]
-        private readonly string $userIdThree,
+        private readonly int $userIdThree,
     ) {
     }
 
@@ -68,7 +68,7 @@ class UserFixtures extends Fixture
             $user->setUsername($this->userNameOne);
             $user->setEmail($this->userNameOne . '@localhost.ru');
             $user->setPassword($this->passwordHasher->hashPassword($user, $this->userTokenOne));
-            $user->setRoles(['ROLE_USER']);
+            $user->setRoles(['ROLE_ADMIN']);
             $manager->persist($user);
 
             $token = new AccessToken();
