@@ -43,6 +43,11 @@ final class ProductProvider implements ProviderInterface
             $context['filters'] ??= [];
 
             $ids = $request->query->get('ids');
+
+            if (empty($ids)) {
+                return null;
+            }
+
             $shopProductIds = explode(',', $ids);
 
             if (empty($shopProductIds)) {

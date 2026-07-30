@@ -6,11 +6,14 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\OpenApi\Model;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\DateUpdatedTimestampTrait;
 use App\Entity\Trait\IdentifierTrait;
 use App\Repository\SourceProductRepository;
+use App\State\SourceProductsSearchProvider;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\MaxDepth;
@@ -27,6 +30,28 @@ use Symfony\Component\Serializer\Attribute\MaxDepth;
             ),
             normalizationContext: ['groups' => [Product::GROUP_PRODUCT_READ]],
         ),
+
+        new GetCollection(
+            uriTemplate: '/source_products/search/{title}',
+            uriVariables: ['title'],
+            defaults: ['title' => ''],
+            requirements: ['title' => '.{3,}+'],
+            openapi: new Operation(
+                summary: 'Найти источник товара по названию',
+                parameters: [
+                    new Model\Parameter(
+                        name: 'title',
+                        in: 'path',
+                        required: true,
+                        schema: [
+                            'type' => 'string',
+                        ]
+                    ),
+                ]
+            ),
+            normalizationContext: ['groups' => [self::GROUP_SOURCE_PRODUCT_READ]],
+            provider: SourceProductsSearchProvider::class,
+        ),
     ],
     order: ['id' => 'DESC'],
     security: "is_granted('ROLE_USER')"
@@ -37,37 +62,39 @@ class SourceProduct
     use DateUpdatedTimestampTrait;
     use IdentifierTrait;
 
+    public const string GROUP_SOURCE_PRODUCT_READ = 'source_product:read';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_READ])]
     private ?int $id = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_READ])]
     private ?SourceProductType $sourceProductType = null;
 
     #[ORM\Column(length: 100)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_READ])]
     private ?string $title = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_READ])]
     private ?User $userCreated = null;
 
     #[ORM\Column]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_READ])]
     private ?\DateTimeImmutable $dateUpdated = null;
 
     #[ORM\Column]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_READ])]
     private ?\DateTimeImmutable $dateCreated = null;
 
     #[ORM\OneToOne(targetEntity: SourceProductUserData::class, mappedBy: 'sourceProduct')]
     #[MaxDepth(1)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_READ])]
     private ?SourceProductUserData $sourceProductUserData = null;
 
     public function getSourceProductType(): ?SourceProductType

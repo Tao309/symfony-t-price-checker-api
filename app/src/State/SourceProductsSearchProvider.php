@@ -8,19 +8,19 @@ use ApiPlatform\Doctrine\Orm\Paginator as ApiPlatformPaginator;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\ProviderInterface;
-use App\Entity\Book;
-use App\Repository\BookRepository;
+use App\Entity\SourceProduct;
+use App\Repository\SourceProductRepository;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * @implements ProviderInterface<Book[]|Book|null>
+ * @implements ProviderInterface<SourceProduct[]|SourceProduct|null>
  */
-final class BooksSearchProvider extends SearchProvider implements ProviderInterface
+final class SourceProductsSearchProvider extends SearchProvider implements ProviderInterface
 {
     public function __construct(
-        private BookRepository $bookRepository,
+        private SourceProductRepository $sourceProductRepository,
         RequestStack $requestStack,
-        Pagination $pagination
+        public readonly Pagination $pagination
     ) {
         parent::__construct($requestStack, $pagination);
     }
@@ -36,7 +36,7 @@ final class BooksSearchProvider extends SearchProvider implements ProviderInterf
             return null;
         }
 
-        $doctrinePaginator = $this->bookRepository->findWithPagination((int) $page, (int) $itemsPerPage, $title);
+        $doctrinePaginator = $this->sourceProductRepository->findWithPagination((int) $page, (int) $itemsPerPage, $title);
 
         return new ApiPlatformPaginator($doctrinePaginator);
     }

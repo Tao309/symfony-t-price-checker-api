@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\OpenApi\Model;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Entity\Trait\DateCreatedTimestampTrait;
@@ -55,6 +56,11 @@ use Symfony\Component\Serializer\Attribute\MaxDepth;
                 ]
             ),
             normalizationContext: ['groups' => [self::GROUP_PRODUCT_READ]],
+            parameters: [
+                'ids' => new QueryParameter(
+                    required: true
+                ),
+            ],
         ),
         new Post(
             openapi: new Operation(

@@ -50,23 +50,23 @@ class SourceProductUserData
     #[ApiProperty(identifier: true)]
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'user_created_id', referencedColumnName: 'id', nullable: false)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
     private ?User $userCreated = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
     private ?int $listenPriceValue = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
     private ?string $comment = null;
 
     #[ORM\Column]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
     private ?\DateTimeImmutable $dateUpdated = null;
 
     #[ORM\Column]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
     private ?\DateTimeImmutable $dateCreated = null;
 
     public function getSourceProduct(): ?SourceProduct

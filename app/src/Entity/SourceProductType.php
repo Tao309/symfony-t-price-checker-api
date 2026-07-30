@@ -39,23 +39,23 @@ class SourceProductType
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
     private ?string $code = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
     private ?string $name = null;
 
     #[ORM\Column]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
     private ?\DateTimeImmutable $dateUpdated = null;
 
     #[ORM\Column]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
     private ?\DateTimeImmutable $dateCreated = null;
 
     public function getCode(): ?string
