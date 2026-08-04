@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\DateUpdatedTimestampTrait;
@@ -13,18 +14,25 @@ use App\Entity\Trait\IdentifierTrait;
 use App\Repository\BookSeriesRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BookSeriesRepository::class)]
-#[ORM\Table(options: ['comment' => 'Серия'])]
+#[ORM\Table(options: ['comment' => 'Книжная серия'])]
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource(
     operations: [
-        new Get(
+        new Post(
+            openapi: new Operation(
+                summary: 'Создать книжную серию',
+            ),
+            denormalizationContext: ['groups' => [self::GROUP_BOOK_SERIES_WRITE]],
+        ),
+        new Patch(
             requirements: ['id' => '\d+'],
             openapi: new Operation(
-                summary: 'Получить серию книги',
+                summary: 'Обновить книжную серию',
             ),
-            normalizationContext: ['groups' => [Book::GROUP_BOOK_READ, Product::GROUP_PRODUCT_READ]],
+            denormalizationContext: ['groups' => [self::GROUP_BOOK_SERIES_WRITE]],
         ),
     ],
     order: ['id' => 'DESC'],
@@ -36,6 +44,8 @@ class BookSeries
     use DateUpdatedTimestampTrait;
     use IdentifierTrait;
 
+    public const string GROUP_BOOK_SERIES_WRITE = 'book_series:write';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -43,7 +53,11 @@ class BookSeries
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups([Book::GROUP_BOOK_READ, Book::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
+    #[Assert\NotNull(groups: [self::GROUP_BOOK_SERIES_WRITE])]
+    #[Groups([
+        self::GROUP_BOOK_SERIES_WRITE,
+        Book::GROUP_BOOK_READ, Book::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ,
+    ])]
     private ?string $name = null;
 
     #[ORM\Column]

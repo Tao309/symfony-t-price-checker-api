@@ -12,7 +12,7 @@
   - **POST** `/api/v1/books` (Создать книгу)
   - **GET** `/api/v1/books/{id}` (Получить книгу)
   - **PATCH** `/api/v1/books/{id}` (Обновить книгу)
-  - **GET** `/api/v1/books/search/{title}` (Найти книгу по названию)
+  - **GET** `/api/v1/books/search/{title}` (Найти книги по названию)
   
 
 - **BookAuthor (автор книги)**
@@ -26,8 +26,23 @@
   - **PATCH** `/api/v1/products/{id}` (Обновить товар)
 
 
-- **SourceProduct (сточник товара)**
-  - **GET** `/api/v1/source_products/search/{title}` (Найти источник товара по названию)
+- **SourceProduct (источник товара)**
+  - **GET** `/api/v1/source_products/search/{title}` (Найти источники товаров по названию)
+
+
+- **BookPublishingHouse (издательский дом)**
+  - **POST** `/api/v1/book_publishing_houses` (Создать издательский дом)
+  - **PATCH** `/api/v1/book_publishing_houses/{id}` (Обновить издательский дом)
+
+
+- **BookPublishingBrand (издательский брэнд)**
+  - **POST** `/api/v1/book_publishing_houses` (Создать издательский брэнд)
+  - **PATCH** `/api/v1/book_publishing_houses/{id}` (Обновить издательский брэнд)
+
+
+- **BookSeries (книжная серия)**
+  - **POST** `/api/v1/book_series` (Создать книжную серию)
+  - **PATCH** `/api/v1/book_series/{id}` (Обновить книжную серию)
 
 
 ## Команды:

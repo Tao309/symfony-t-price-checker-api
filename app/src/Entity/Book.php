@@ -47,7 +47,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             defaults: ['title' => ''],
             requirements: ['title' => '.{3,}+'],
             openapi: new Operation(
-                summary: 'Найти книгу по названию',
+                summary: 'Найти книги по названию',
                 parameters: [
                     new Model\Parameter(
                         name: 'title',

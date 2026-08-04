@@ -37,7 +37,7 @@ use Symfony\Component\Serializer\Attribute\MaxDepth;
             defaults: ['title' => ''],
             requirements: ['title' => '.{3,}+'],
             openapi: new Operation(
-                summary: 'Найти источник товара по названию',
+                summary: 'Найти источники товаров по названию',
                 parameters: [
                     new Model\Parameter(
                         name: 'title',
