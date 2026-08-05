@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\SourceProductUserData;
+use App\Entity\BookUserData;
 use App\Exception\HasRelationException;
+use App\Repository\BookRepository;
+use App\Repository\BookUserDataRepository;
 use App\Repository\ProductRepository;
-use App\Repository\SourceProductRepository;
-use App\Repository\SourceProductUserDataRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,12 +17,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 
 #[AsController]
-class LinkSourceProductController extends AbstractController
+class LinkBookController extends AbstractController
 {
     public function __construct(
-        private readonly SourceProductUserDataRepository $sourceProductUserDataRepository,
+        private readonly BookUserDataRepository $bookUserDataRepository,
         private readonly ProductRepository $productRepository,
-        private readonly SourceProductRepository $sourceProductRepository,
+        private readonly BookRepository $bookRepository,
         private Security $security,
         private readonly EntityManagerInterface $em
     ) {
@@ -30,7 +30,7 @@ class LinkSourceProductController extends AbstractController
 
     public function __invoke(
         int $productId,
-        int $sourceProductId,
+        int $bookId,
     ): JsonResponse {
         $product = $this->productRepository->find($productId);
 
@@ -46,27 +46,27 @@ class LinkSourceProductController extends AbstractController
             throw new HasRelationException('Продукт уже имеет связь с книгой');
         }
 
-        $sourceProduct = $this->sourceProductRepository->find($sourceProductId);
+        $book = $this->bookRepository->find($bookId);
 
-        if (!$sourceProduct) {
-            throw new EntityNotFoundException(\sprintf('Источник товара с ID = "%s" не найден', $sourceProductId));
+        if (!$book) {
+            throw new EntityNotFoundException(\sprintf('Книга с ID = "%s" не найдена', $bookId));
         }
 
         $user = $this->security->getUser();
 
-        $spud = $this->sourceProductUserDataRepository->findOneBy([
-            'sourceProduct' => $sourceProduct,
+        $bud = $this->bookUserDataRepository->findOneBy([
+            'book' => $book,
             'userCreated' => $user,
         ]);
 
-        if (!$spud) {
-            $bud = new SourceProductUserData();
-            $bud->setSourceProduct($sourceProduct);
+        if (!$bud) {
+            $bud = new BookUserData();
+            $bud->setBook($book);
             $bud->setUserCreated($user);
             $this->em->persist($bud);
         }
 
-        $product->setSourceProduct($sourceProduct);
+        $product->setBook($book);
 
         $this->em->persist($product);
         $this->em->flush();

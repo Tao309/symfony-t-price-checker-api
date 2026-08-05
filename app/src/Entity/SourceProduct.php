@@ -63,7 +63,7 @@ use Symfony\Component\Serializer\Attribute\MaxDepth;
                 summary: 'Привязать источник товара к продукту',
                 parameters: [
                     new Model\Parameter(
-                        name: 'sourceProductId',
+                        name: 'productId',
                         in: 'path',
                         required: true,
                         schema: [
@@ -71,7 +71,7 @@ use Symfony\Component\Serializer\Attribute\MaxDepth;
                         ]
                     ),
                     new Model\Parameter(
-                        name: 'productId',
+                        name: 'sourceProductId',
                         in: 'path',
                         required: true,
                         schema: [

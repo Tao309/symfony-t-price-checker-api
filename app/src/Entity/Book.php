@@ -11,6 +11,8 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
 use ApiPlatform\OpenApi\Model\Operation;
+use App\Controller\LinkBookController;
+use App\Controller\UnlinkBookController;
 use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\DateUpdatedTimestampTrait;
 use App\Entity\Trait\IdentifierTrait;
@@ -74,6 +76,54 @@ use Symfony\Component\Validator\Constraints as Assert;
                 summary: 'Обновить книгу',
             ),
             denormalizationContext: ['groups' => [self::GROUP_BOOK_WRITE]],
+        ),
+        new Post(
+            uriTemplate: '/books/link/{productId}/{bookId}',
+            uriVariables: [],
+            controller: LinkBookController::class,
+            openapi: new Operation(
+                summary: 'Привязать книгу к продукту',
+                parameters: [
+                    new Model\Parameter(
+                        name: 'productId',
+                        in: 'path',
+                        required: true,
+                        schema: [
+                            'type' => 'integer',
+                        ]
+                    ),
+                    new Model\Parameter(
+                        name: 'bookId',
+                        in: 'path',
+                        required: true,
+                        schema: [
+                            'type' => 'integer',
+                        ]
+                    ),
+                ]
+            ),
+            read: false,
+            name: 'link_book',
+        ),
+        new Post(
+            uriTemplate: '/books/unlink/{productId}',
+            uriVariables: [],
+            controller: UnlinkBookController::class,
+            openapi: new Operation(
+                summary: 'Отвязать книгу от продукта',
+                parameters: [
+                    new Model\Parameter(
+                        name: 'productId',
+                        in: 'path',
+                        required: true,
+                        schema: [
+                            'type' => 'integer',
+                        ]
+                    ),
+                ]
+            ),
+            read: false,
+            name: 'unlink_book',
         ),
     ],
     order: ['id' => 'DESC'],

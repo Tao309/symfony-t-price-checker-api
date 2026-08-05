@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Link;
 use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\DateUpdatedTimestampTrait;
+use App\Entity\Trait\UserAwareTrait;
 use App\Repository\BookUserDataRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -40,6 +41,7 @@ class BookUserData
 {
     use DateCreatedTimestampTrait;
     use DateUpdatedTimestampTrait;
+    use UserAwareTrait;
 
     #[ORM\Id]
     #[ApiProperty(identifier: true)]
@@ -52,7 +54,7 @@ class BookUserData
     #[ORM\JoinColumn(nullable: false)]
     private ?User $userCreated;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     #[Groups([Product::GROUP_PRODUCT_READ])]
     private ?\DateTimeImmutable $releaseDate = null;
 
@@ -84,24 +86,12 @@ class BookUserData
         return $this;
     }
 
-    public function getUserCreated(): ?User
-    {
-        return $this->userCreated;
-    }
-
-    public function setUserCreated(User $userCreated): static
-    {
-        $this->userCreated = $userCreated;
-
-        return $this;
-    }
-
     public function getReleaseDate(): ?\DateTimeImmutable
     {
         return $this->releaseDate;
     }
 
-    public function setReleaseDate(\DateTimeImmutable $releaseDate): static
+    public function setReleaseDate(?\DateTimeImmutable $releaseDate): static
     {
         $this->releaseDate = $releaseDate;
 

@@ -13,6 +13,8 @@
   - **GET** `/api/v1/books/{id}` (Получить книгу)
   - **PATCH** `/api/v1/books/{id}` (Обновить книгу)
   - **GET** `/api/v1/books/search/{title}` (Найти книги по названию)
+  - **POST** `/api/v1/books/link/{productId}/{bookId}` (Привязать книгу к продукту)
+  - **POST** `/api/v1/books/unlink/{productId}` (Отвязать книгу от продукта)
   
 
 - **BookAuthor (автор книги)**
