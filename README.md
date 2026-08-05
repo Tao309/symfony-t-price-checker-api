@@ -28,6 +28,8 @@
 
 - **SourceProduct (источник товара)**
   - **GET** `/api/v1/source_products/search/{title}` (Найти источники товаров по названию)
+  - **POST** `/api/v1/source_products/link/{productId}/{sourceProductId}` (Привязать источник товара к продукту)
+  - **POST** `/api/v1/source_products/unlink/{productId}` (Отвязать источник товара от продукта)
 
 
 - **BookPublishingHouse (издательский дом)**
@@ -91,3 +93,4 @@
 - добавить лимит при выводе продуктов (после прав пользователей)
 - конфиг вынести в отдельный метод апи?
 - лимит по умолчанию для запросов общих в GetCollection
+- описать Exception-ы

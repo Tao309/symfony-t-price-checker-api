@@ -7,8 +7,11 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
 use ApiPlatform\OpenApi\Model\Operation;
+use App\Controller\LinkSourceProductController;
+use App\Controller\UnlinkSourceProductController;
 use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\DateUpdatedTimestampTrait;
 use App\Entity\Trait\IdentifierTrait;
@@ -51,6 +54,54 @@ use Symfony\Component\Serializer\Attribute\MaxDepth;
             ),
             normalizationContext: ['groups' => [self::GROUP_SOURCE_PRODUCT_READ]],
             provider: SourceProductsSearchProvider::class,
+        ),
+        new Post(
+            uriTemplate: '/source_products/link/{productId}/{sourceProductId}',
+            uriVariables: [],
+            controller: LinkSourceProductController::class,
+            openapi: new Operation(
+                summary: 'Привязать источник товара к продукту',
+                parameters: [
+                    new Model\Parameter(
+                        name: 'sourceProductId',
+                        in: 'path',
+                        required: true,
+                        schema: [
+                            'type' => 'integer',
+                        ]
+                    ),
+                    new Model\Parameter(
+                        name: 'productId',
+                        in: 'path',
+                        required: true,
+                        schema: [
+                            'type' => 'integer',
+                        ]
+                    ),
+                ]
+            ),
+            read: false,
+            name: 'link_source_product',
+        ),
+        new Post(
+            uriTemplate: '/source_products/unlink/{productId}',
+            uriVariables: [],
+            controller: UnlinkSourceProductController::class,
+            openapi: new Operation(
+                summary: 'Отвязать источник товара от продукта',
+                parameters: [
+                    new Model\Parameter(
+                        name: 'productId',
+                        in: 'path',
+                        required: true,
+                        schema: [
+                            'type' => 'integer',
+                        ]
+                    ),
+                ]
+            ),
+            read: false,
+            name: 'unlink_source_product',
         ),
     ],
     order: ['id' => 'DESC'],

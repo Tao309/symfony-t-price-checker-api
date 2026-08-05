@@ -1,5 +1,6 @@
 api_platform:
     title: t-price-checker API
+    use_symfony_listeners: true
     version: 1.0.0
     defaults:
         route_prefix: '/v1'
