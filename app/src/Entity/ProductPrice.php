@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
@@ -34,6 +35,14 @@ use Symfony\Component\Serializer\Attribute\Groups;
                 'product' => new Link(fromClass: ProductPrice::class, identifiers: ['product.id']),
                 'userCreated' => new Link(fromClass: ProductPrice::class, identifiers: ['userCreated.id']),
                 'dateCreatedString' => new Link(fromClass: ProductPrice::class, identifiers: ['dateCreatedString']),
+            ],
+        ),
+        new Delete(
+            uriTemplate: '/product_prices/{product}/{userCreated}/{dateCreatedString}',
+            uriVariables: [
+                'product' => new Link(fromClass: ProductStock::class, identifiers: ['product']),
+                'userCreated' => new Link(fromClass: ProductStock::class, identifiers: ['userCreated']),
+                'dateCreatedString' => new Link(fromClass: ProductStock::class, identifiers: ['dateCreatedString']),
             ],
         ),
     ],

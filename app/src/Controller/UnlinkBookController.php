@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Product;
 use App\Exception\HasRelationException;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -11,11 +12,13 @@ use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\AsController;
+use Symfony\Component\Serializer\SerializerInterface;
 
 #[AsController]
 class UnlinkBookController extends AbstractController
 {
     public function __construct(
+        private readonly SerializerInterface $serializer,
         private readonly ProductRepository $productRepository,
         private readonly EntityManagerInterface $em
     ) {
@@ -39,8 +42,16 @@ class UnlinkBookController extends AbstractController
         $this->em->persist($product);
         $this->em->flush();
 
+        $productData = $this->serializer->normalize(
+            $this->productRepository->find($productId),
+            'json',
+            [
+                'groups' => [Product::GROUP_PRODUCT_READ],
+            ]
+        );
+
         return $this->json([
-            'product' => $product,
+            'product' => $productData,
         ]);
     }
 }

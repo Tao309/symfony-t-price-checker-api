@@ -8,11 +8,11 @@
 ## Сущности:
 
 - **Book (книга)**
-  - **GET** `/api/v1/books` (Получить список книг)
-  - **POST** `/api/v1/books` (Создать книгу)
   - **GET** `/api/v1/books/{id}` (Получить книгу)
-  - **PATCH** `/api/v1/books/{id}` (Обновить книгу)
+  - **GET** `/api/v1/books` (Получить список книг)
   - **GET** `/api/v1/books/search/{title}` (Найти книги по названию)
+  - **PATCH** `/api/v1/books/{id}` (Обновить книгу)
+  - **POST** `/api/v1/books` (Создать книгу)
   - **POST** `/api/v1/books/link/{productId}/{bookId}` (Привязать книгу к продукту)
   - **POST** `/api/v1/books/unlink/{productId}` (Отвязать книгу от продукта)
   
@@ -22,14 +22,17 @@
   
 
 - **Product (товар)**
-  - **GET** `/api/v1/products?ids=406256148,91138231,...` (Получить список товаров)
-  - **POST** `/api/v1/products` (Создать товар)
   - **GET** `/api/v1/products/{id}` (Получить товар)
+  - **GET** `/api/v1/products?ids=406256148,91138231,...` (Получить список товаров)
   - **PATCH** `/api/v1/products/{id}` (Обновить товар)
+  - **POST** `/api/v1/products` (Создать товар)
 
 
-- **SourceProduct (источник товара)**
+- **SourceProduct (источник товара)**-
+  - **GET** `/api/v1/source_products/{id}` (Получить источник товара)
   - **GET** `/api/v1/source_products/search/{title}` (Найти источники товаров по названию)
+  - **PATCH** `/api/v1/source_products/{id}` (Обновить источник товара)
+  - **POST** `/api/v1/source_products` (Создать источник товара)
   - **POST** `/api/v1/source_products/link/{productId}/{sourceProductId}` (Привязать источник товара к продукту)
   - **POST** `/api/v1/source_products/unlink/{productId}` (Отвязать источник товара от продукта)
 
@@ -93,6 +96,6 @@
 - добавить роли пользователей
 - добавить права на пользователей по доступу к функционалу (поле access_rights в конфигах)
 - добавить лимит при выводе продуктов (после прав пользователей)
-- конфиг вынести в отдельный метод апи?
+- конфиг вынести в отдельный метод апи? Или в openapi добавить config
 - лимит по умолчанию для запросов общих в GetCollection
 - описать Exception-ы

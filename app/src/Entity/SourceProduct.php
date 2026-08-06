@@ -7,6 +7,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
 use ApiPlatform\OpenApi\Model\Operation;
@@ -17,9 +18,11 @@ use App\Entity\Trait\DateUpdatedTimestampTrait;
 use App\Entity\Trait\IdentifierTrait;
 use App\Repository\SourceProductRepository;
 use App\State\SourceProductsSearchProvider;
+use App\State\WrapEntityProcessor;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\MaxDepth;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SourceProductRepository::class)]
 #[ORM\Table(options: ['comment' => 'Источник товара'])]
@@ -54,6 +57,77 @@ use Symfony\Component\Serializer\Attribute\MaxDepth;
             ),
             normalizationContext: ['groups' => [self::GROUP_SOURCE_PRODUCT_READ]],
             provider: SourceProductsSearchProvider::class,
+        ),
+        new Post(
+            formats: ['json' => ['application/json']],
+            openapi: new Operation(
+                responses: [
+                    200 => new Model\Response(
+                        description: 'Успешный ответ',
+                        content: new \ArrayObject([
+                            'application/ld+json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'entity' => [
+                                            '$ref' => '#/components/schemas/SourceProduct.jsonld',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'entity' => [
+                                            '$ref' => '#/components/schemas/SourceProduct',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ])
+                    ),
+                ],
+                summary: 'Создать источник товара',
+            ),
+            denormalizationContext: ['groups' => [self::GROUP_SOURCE_PRODUCT_WRITE]],
+            processor: WrapEntityProcessor::class,
+        ),
+        new Patch(
+            inputFormats: ['json' => ['application/json']],
+            requirements: ['id' => '\d+'],
+            openapi: new Operation(
+                responses: [
+                    200 => new Model\Response(
+                        description: 'Успешный ответ',
+                        content: new \ArrayObject([
+                            'application/ld+json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'entity' => [
+                                            '$ref' => '#/components/schemas/SourceProduct.jsonld',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'entity' => [
+                                            '$ref' => '#/components/schemas/SourceProduct',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ])
+                    ),
+                ],
+                summary: 'Обновить источник товара',
+            ),
+            denormalizationContext: ['groups' => [self::GROUP_SOURCE_PRODUCT_WRITE]],
+            processor: WrapEntityProcessor::class,
         ),
         new Post(
             uriTemplate: '/source_products/link/{productId}/{sourceProductId}',
@@ -114,6 +188,7 @@ class SourceProduct
     use IdentifierTrait;
 
     public const string GROUP_SOURCE_PRODUCT_READ = 'source_product:read';
+    public const string GROUP_SOURCE_PRODUCT_WRITE = 'source_product:write';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -123,11 +198,13 @@ class SourceProduct
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_WRITE])]
     private ?SourceProductType $sourceProductType = null;
 
     #[ORM\Column(length: 100)]
-    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_READ])]
+    #[Assert\NotNull(groups: [self::GROUP_SOURCE_PRODUCT_WRITE])]
+    #[Assert\Length(min: 5, max: 255, groups: [self::GROUP_SOURCE_PRODUCT_WRITE])]
+    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_WRITE])]
     private ?string $title = null;
 
     #[ORM\ManyToOne]

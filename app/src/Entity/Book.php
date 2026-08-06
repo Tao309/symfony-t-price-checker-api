@@ -19,6 +19,7 @@ use App\Entity\Trait\IdentifierTrait;
 use App\Entity\Trait\UserAwareTrait;
 use App\Repository\BookRepository;
 use App\State\BooksSearchProvider;
+use App\State\WrapEntityProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -33,6 +34,33 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(
             requirements: ['id' => '\d+'],
             openapi: new Operation(
+                //                responses: [
+                //                    200 => new Model\Response(
+                //                        description: 'Успешный ответ',
+                //                        content: new \ArrayObject([
+                //                            'application/ld+json' => [
+                //                                'schema' => [
+                //                                    'type' => 'object',
+                //                                    'properties' => [
+                //                                        'entity' => [
+                //                                            '$ref' => '#/components/schemas/Book.jsonld',
+                //                                        ],
+                //                                    ],
+                //                                ],
+                //                            ],
+                //                            'application/json' => [
+                //                                'schema' => [
+                //                                    'type' => 'object',
+                //                                    'properties' => [
+                //                                        'entity' => [
+                //                                            '$ref' => '#/components/schemas/Book'
+                //                                        ],
+                //                                    ],
+                //                                ],
+                //                            ],
+                //                        ])
+                //                    ),
+                //                ],
                 summary: 'Получить книгу',
             ),
             normalizationContext: ['groups' => [self::GROUP_BOOK_READ]],
@@ -65,17 +93,75 @@ use Symfony\Component\Validator\Constraints as Assert;
             provider: BooksSearchProvider::class,
         ),
         new Post(
+            formats: ['json' => ['application/json']],
             openapi: new Operation(
+                responses: [
+                    200 => new Model\Response(
+                        description: 'Успешный ответ',
+                        content: new \ArrayObject([
+                            'application/ld+json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'entity' => [
+                                            '$ref' => '#/components/schemas/Book.jsonld',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'entity' => [
+                                            '$ref' => '#/components/schemas/Book',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ])
+                    ),
+                ],
                 summary: 'Создать книгу',
             ),
             denormalizationContext: ['groups' => [self::GROUP_BOOK_WRITE]],
+            processor: WrapEntityProcessor::class,
         ),
         new Patch(
+            inputFormats: ['json' => ['application/json']],
             requirements: ['id' => '\d+'],
             openapi: new Operation(
+                responses: [
+                    200 => new Model\Response(
+                        description: 'Успешный ответ',
+                        content: new \ArrayObject([
+                            'application/ld+json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'entity' => [
+                                            '$ref' => '#/components/schemas/Book.jsonld',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'entity' => [
+                                            '$ref' => '#/components/schemas/Book',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ])
+                    ),
+                ],
                 summary: 'Обновить книгу',
             ),
             denormalizationContext: ['groups' => [self::GROUP_BOOK_WRITE]],
+            processor: WrapEntityProcessor::class,
         ),
         new Post(
             uriTemplate: '/books/link/{productId}/{bookId}',

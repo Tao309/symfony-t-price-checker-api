@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Link;
 use App\Entity\Trait\DateCreatedStringTrait;
@@ -31,6 +32,14 @@ use Symfony\Component\Serializer\Attribute\Groups;
             uriVariables: [
                 'product' => new Link(fromClass: ProductStock::class, identifiers: ['product.id']),
                 'userCreated' => new Link(fromClass: ProductStock::class, identifiers: ['userCreated.id']),
+                'dateCreatedString' => new Link(fromClass: ProductStock::class, identifiers: ['dateCreatedString']),
+            ],
+        ),
+        new Delete(
+            uriTemplate: '/product_stocks/{product}/{userCreated}/{dateCreatedString}',
+            uriVariables: [
+                'product' => new Link(fromClass: ProductStock::class, identifiers: ['product']),
+                'userCreated' => new Link(fromClass: ProductStock::class, identifiers: ['userCreated']),
                 'dateCreatedString' => new Link(fromClass: ProductStock::class, identifiers: ['dateCreatedString']),
             ],
         ),
