@@ -7,17 +7,14 @@ namespace App\State;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\State\ProcessorInterface;
-use App\Entity\Book;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\Serializer\SerializerInterface;
 
 /**
- * @implements ProcessorInterface<Book, Book>
+ * @implements ProcessorInterface
  */
 readonly class WrapEntityProcessor implements ProcessorInterface
 {
     public function __construct(
-        private SerializerInterface $serializer,
         #[Autowire(service: 'api_platform.doctrine.orm.state.persist_processor')]
         private ProcessorInterface $persistProcessor
     ) {
