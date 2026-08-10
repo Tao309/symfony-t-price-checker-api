@@ -193,8 +193,8 @@ class ImportBooksCommand extends CommonImportCommand
             ->setFantlabId($row[self::FIELD_FANTLAB_ID])
             ->setLivelibRating($row[self::FIELD_LIVELIB_RATING])
             ->setGoodreadsRating($row[self::FIELD_GOODREADS_RATING])
-            ->setDateUpdated(new \DateTimeImmutable($row[self::FIELD_DATE_UPDATED]))
-            ->setDateCreated(new \DateTimeImmutable($row[self::FIELD_DATE_CREATED]))
+            ->setDateUpdated(new \DateTime($row[self::FIELD_DATE_UPDATED]))
+            ->setDateCreated(new \DateTime($row[self::FIELD_DATE_CREATED]))
         ;
 
         $this->setAuthor($entity, $row);

@@ -71,8 +71,8 @@ class ImportSourceProductUserDataCommand extends CommonImportCommand
         $entity = new SourceProductUserData()
             ->setListenPriceValue($row[self::FIELD_LISTEN_PRICE_VALUE])
             ->setComment($row[self::FIELD_COMMENT])
-            ->setDateUpdated(new \DateTimeImmutable($row[self::FIELD_DATE_UPDATED]))
-            ->setDateCreated(new \DateTimeImmutable($row[self::FIELD_DATE_CREATED]))
+            ->setDateUpdated(new \DateTime($row[self::FIELD_DATE_UPDATED]))
+            ->setDateCreated(new \DateTime($row[self::FIELD_DATE_CREATED]))
         ;
 
         // Проставление источника товара

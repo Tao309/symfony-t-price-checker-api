@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\AccessTokenRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AccessTokenRepository::class)]
@@ -21,8 +22,8 @@ class AccessToken
     #[ORM\Column(length: 255)]
     public string $userIdentifier;
 
-    #[ORM\Column]
-    public \DateTimeImmutable $expiresAt;
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
+    public \DateTime $expiresAt;
 
     public function getId(): int
     {
@@ -31,6 +32,6 @@ class AccessToken
 
     public function isValid(): bool
     {
-        return $this->expiresAt > new \DateTimeImmutable();
+        return $this->expiresAt > new \DateTime();
     }
 }

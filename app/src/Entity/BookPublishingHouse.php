@@ -12,6 +12,7 @@ use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\DateUpdatedTimestampTrait;
 use App\Entity\Trait\IdentifierTrait;
 use App\Repository\BookPublishingHouseRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -57,13 +58,13 @@ class BookPublishingHouse
     #[Groups([self::GROUP_BPH_WRITE, Book::GROUP_BOOK_READ, Book::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
     private ?string $name = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_PRODUCT_READ])]
-    private ?\DateTimeImmutable $dateUpdated = null;
+    private ?\DateTime $dateUpdated = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_PRODUCT_READ])]
-    private ?\DateTimeImmutable $dateCreated = null;
+    private ?\DateTime $dateCreated = null;
 
     public function getName(): ?string
     {

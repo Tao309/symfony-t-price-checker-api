@@ -58,7 +58,7 @@ class UserFixtures extends Fixture
             $token = new AccessToken();
             $token->token = $this->adminToken;
             $token->userIdentifier = 'admin';
-            $token->expiresAt = \DateTimeImmutable::createFromFormat('Y-m-d', '2050-01-01');
+            $token->expiresAt = \DateTime::createFromFormat('Y-m-d', '2050-01-01');
             $manager->persist($token);
         }
 
@@ -74,7 +74,7 @@ class UserFixtures extends Fixture
             $token = new AccessToken();
             $token->token = $this->userTokenOne;
             $token->userIdentifier = $this->userNameOne;
-            $token->expiresAt = \DateTimeImmutable::createFromFormat('Y-m-d', '2050-01-01');
+            $token->expiresAt = \DateTime::createFromFormat('Y-m-d', '2050-01-01');
             $manager->persist($token);
         }
 
@@ -90,7 +90,7 @@ class UserFixtures extends Fixture
             $token = new AccessToken();
             $token->token = $this->userTokenTwo;
             $token->userIdentifier = $this->userNameTwo;
-            $token->expiresAt = \DateTimeImmutable::createFromFormat('Y-m-d', '2050-01-01');
+            $token->expiresAt = \DateTime::createFromFormat('Y-m-d', '2050-01-01');
             $manager->persist($token);
         }
 
@@ -106,7 +106,7 @@ class UserFixtures extends Fixture
             $token = new AccessToken();
             $token->token = $this->userTokenThree;
             $token->userIdentifier = $this->userNameThree;
-            $token->expiresAt = \DateTimeImmutable::createFromFormat('Y-m-d', '2050-01-01');
+            $token->expiresAt = \DateTime::createFromFormat('Y-m-d', '2050-01-01');
             $manager->persist($token);
         }
 

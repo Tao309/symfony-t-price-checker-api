@@ -23,4 +23,6 @@ cs-fix:
 	vendor/bin/php-cs-fixer fix && vendor/bin/phpcbf ./src
 migrate:
 	php bin/console doctrine:migrations:execute 'DoctrineMigrations\Version20260805100000' --up
+cache:
+	php bin/console doctrine:cache:clear-metadata && php bin/console cache:clear
 

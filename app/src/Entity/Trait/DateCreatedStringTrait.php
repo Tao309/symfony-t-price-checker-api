@@ -24,7 +24,7 @@ trait DateCreatedStringTrait
     public function onPrePersist(): void
     {
         if (null === $this->dateCreatedString) {
-            $this->dateCreatedString = new \DateTimeImmutable()->format('Y-m-d H:i:s');
+            $this->dateCreatedString = new \DateTime()->format('Y-m-d H:i:s P');
         }
     }
 }

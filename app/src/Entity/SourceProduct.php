@@ -19,6 +19,7 @@ use App\Entity\Trait\IdentifierTrait;
 use App\Repository\SourceProductRepository;
 use App\State\SourceProductsSearchProvider;
 use App\State\WrapEntityProcessor;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\MaxDepth;
@@ -212,13 +213,13 @@ class SourceProduct
     #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_READ])]
     private ?User $userCreated = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_READ])]
-    private ?\DateTimeImmutable $dateUpdated = null;
+    private ?\DateTime $dateUpdated = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_READ])]
-    private ?\DateTimeImmutable $dateCreated = null;
+    private ?\DateTime $dateCreated = null;
 
     #[ORM\OneToOne(targetEntity: SourceProductUserData::class, mappedBy: 'sourceProduct')]
     #[MaxDepth(1)]

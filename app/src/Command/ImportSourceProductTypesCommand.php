@@ -45,7 +45,7 @@ class ImportSourceProductTypesCommand extends CommonImportCommand
         $entity->setId($row[self::FIELD_ID]);
         $entity->setCode($row[self::FIELD_CODE]);
         $entity->setName($row[self::FIELD_NAME]);
-        $entity->setDateCreated(new \DateTimeImmutable($row[self::FIELD_DATE_CREATED]));
+        $entity->setDateCreated(new \DateTime($row[self::FIELD_DATE_CREATED]));
 
         return $entity;
     }

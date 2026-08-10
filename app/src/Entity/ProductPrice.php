@@ -14,6 +14,7 @@ use App\Entity\Trait\DateCreatedStringTrait;
 use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\UserAwareTrait;
 use App\Repository\ProductPriceRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -23,12 +24,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\UniqueConstraint(name: 'pp_product_user_date', columns: ['product_id', 'user_created_id', 'date_created_string'])]
 #[UniqueEntity(
     fields: ['product_id', 'user_created_id', 'date_created_string'],
-    message: 'ProductPrice с такой комбинацией полей уже существует'
+    message: 'ProductPrice с такой комбинацией полей уже существует',
 )]
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource(
     operations: [
-        new GetCollection(),
+        new GetCollection(openapi: false),
         new Get(
             uriTemplate: '/product_prices/{product}/{userCreated}/{dateCreatedString}',
             uriVariables: [
@@ -36,6 +37,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
                 'userCreated' => new Link(fromClass: ProductPrice::class, identifiers: ['userCreated.id']),
                 'dateCreatedString' => new Link(fromClass: ProductPrice::class, identifiers: ['dateCreatedString']),
             ],
+            normalizationContext: ['groups' => [self::GROUP_PRICE_READ]],
         ),
         new Delete(
             uriTemplate: '/product_prices/{product}/{userCreated}/{dateCreatedString}',
@@ -55,6 +57,9 @@ class ProductPrice implements UserAwareInterface
     use DateCreatedTimestampTrait;
     use UserAwareTrait;
 
+    public const string GROUP_PRICE_READ = 'product_price:read';
+    public const string GROUP_PRICE_WRITE = 'product_price:write';
+
     #[ORM\Id]
     #[ApiProperty(identifier: true)]
     #[ORM\ManyToOne(inversedBy: 'prices')]
@@ -62,7 +67,7 @@ class ProductPrice implements UserAwareInterface
     private ?Product $product = null;
 
     #[ORM\Column]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_PRICE_WRITE, self::GROUP_PRICE_READ])]
     private ?int $price = null;
 
     #[ORM\Id]
@@ -71,13 +76,13 @@ class ProductPrice implements UserAwareInterface
     #[ORM\JoinColumn(nullable: false)]
     private ?User $userCreated = null;
 
-    #[ORM\Column]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
-    private ?\DateTimeImmutable $dateCreated = null;
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
+    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_PRICE_READ])]
+    private ?\DateTime $dateCreated = null;
 
     #[ORM\Id]
     #[ApiProperty(identifier: true)]
-    #[ORM\Column(length: 25, nullable: false)]
+    #[ORM\Column(length: 50, nullable: false)]
     private ?string $dateCreatedString = null;
 
     public function getProduct(): ?Product

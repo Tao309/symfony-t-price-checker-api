@@ -44,8 +44,8 @@ class ImportPublishingBrandsCommand extends CommonImportCommand
         $entity = new BookPublishingBrand();
         $entity->setId($row[self::FIELD_ID]);
         $entity->setName($row[self::FIELD_NAME]);
-        $entity->setDateUpdated(new \DateTimeImmutable($row[self::FIELD_DATE_UPDATED]));
-        $entity->setDateCreated(new \DateTimeImmutable($row[self::FIELD_DATE_CREATED]));
+        $entity->setDateUpdated(new \DateTime($row[self::FIELD_DATE_UPDATED]));
+        $entity->setDateCreated(new \DateTime($row[self::FIELD_DATE_CREATED]));
 
         return $entity;
     }

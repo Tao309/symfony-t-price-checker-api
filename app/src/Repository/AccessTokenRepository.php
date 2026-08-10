@@ -24,7 +24,7 @@ class AccessTokenRepository extends ServiceEntityRepository
             ->andWhere('t.token = :token')
             ->andWhere('t.expiresAt > :now')
             ->setParameter('token', $value)
-            ->setParameter('now', new \DateTimeImmutable())
+            ->setParameter('now', new \DateTime())
             ->getQuery()
             ->getOneOrNullResult();
     }

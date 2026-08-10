@@ -54,13 +54,13 @@ class ImportProductsCommand extends CommonImportCommand
 
         foreach ($this->importData as $data) {
             try {
-                new \DateTimeImmutable($data[self::FIELD_DATE_UPDATED]);
+                new \DateTime($data[self::FIELD_DATE_UPDATED]);
             } catch (\Throwable $e) {
                 $parsingErrors[] = [self::FIELD_DATE_UPDATED, $data[self::FIELD_ID]];
             }
 
             try {
-                new \DateTimeImmutable($data[self::FIELD_DATE_CREATED]);
+                new \DateTime($data[self::FIELD_DATE_CREATED]);
             } catch (\Throwable $e) {
                 $parsingErrors[] = [self::FIELD_DATE_CREATED, $data[self::FIELD_ID], $data[self::FIELD_TITLE]];
             }
@@ -105,8 +105,8 @@ class ImportProductsCommand extends CommonImportCommand
             ->setShopProductId($row[self::FIELD_SHOP_PRODUCT_ID])
             ->setShopProductCode($row[self::FIELD_SHOP_PRODUCT_CODE])
             ->setTitle($row[self::FIELD_TITLE])
-            ->setDateUpdated(new \DateTimeImmutable($row[self::FIELD_DATE_UPDATED]))
-            ->setDateCreated(new \DateTimeImmutable($row[self::FIELD_DATE_CREATED]))
+            ->setDateUpdated(new \DateTime($row[self::FIELD_DATE_UPDATED]))
+            ->setDateCreated(new \DateTime($row[self::FIELD_DATE_CREATED]))
         ;
 
         if (!empty($row[self::FIELD_BOOK_ID])) {

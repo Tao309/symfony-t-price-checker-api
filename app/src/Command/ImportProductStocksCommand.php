@@ -68,7 +68,7 @@ class ImportProductStocksCommand extends CommonImportCommand
     {
         $entity = new ProductStock()
             ->setQty($row[self::FIELD_QTY])
-            ->setDateCreated(new \DateTimeImmutable($row[self::FIELD_DATE_CREATED]))
+            ->setDateCreated(new \DateTime($row[self::FIELD_DATE_CREATED]))
             ->setDateCreatedString($row[self::FIELD_DATE_CREATED])
             ->setLog(json_decode($row[self::FIELD_LOG], true))
         ;

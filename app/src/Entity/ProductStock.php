@@ -8,11 +8,13 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use App\Entity\Trait\DateCreatedStringTrait;
 use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\UserAwareTrait;
 use App\Repository\ProductStockRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -27,6 +29,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource(
     operations: [
+        new GetCollection(openapi: false),
         new Get(
             uriTemplate: '/product_stocks/{product}/{userCreated}/{dateCreatedString}',
             uriVariables: [
@@ -34,6 +37,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
                 'userCreated' => new Link(fromClass: ProductStock::class, identifiers: ['userCreated.id']),
                 'dateCreatedString' => new Link(fromClass: ProductStock::class, identifiers: ['dateCreatedString']),
             ],
+            normalizationContext: ['groups' => [self::GROUP_STOCK_READ]],
         ),
         new Delete(
             uriTemplate: '/product_stocks/{product}/{userCreated}/{dateCreatedString}',
@@ -53,6 +57,9 @@ class ProductStock implements UserAwareInterface
     use DateCreatedTimestampTrait;
     use UserAwareTrait;
 
+    public const string GROUP_STOCK_READ = 'product_stock:read';
+    public const string GROUP_STOCK_WRITE = 'product_stock:write';
+
     #[ORM\Id]
     #[ApiProperty(identifier: true)]
     #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: 'stocks')]
@@ -60,12 +67,12 @@ class ProductStock implements UserAwareInterface
     private ?Product $product = null;
 
     #[ORM\Column]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_STOCK_WRITE, self::GROUP_STOCK_READ])]
     private ?int $qty = null;
 
-    #[ORM\Column]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
-    private ?\DateTimeImmutable $dateCreated = null;
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
+    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_STOCK_READ])]
+    private ?\DateTime $dateCreated = null;
 
     #[ORM\Id]
     #[ApiProperty(identifier: true)]
@@ -74,12 +81,12 @@ class ProductStock implements UserAwareInterface
     private ?User $userCreated = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_STOCK_WRITE, self::GROUP_STOCK_READ])]
     private ?array $log = null;
 
     #[ORM\Id]
     #[ApiProperty(identifier: true)]
-    #[ORM\Column(length: 25)]
+    #[ORM\Column(length: 50, nullable: false)]
     private ?string $dateCreatedString = null;
 
     public function getProduct(): ?Product

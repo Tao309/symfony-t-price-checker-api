@@ -54,9 +54,9 @@ class BookUserData
     #[ORM\JoinColumn(nullable: false)]
     private ?User $userCreated;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE, nullable: true)]
     #[Groups([Product::GROUP_PRODUCT_READ])]
-    private ?\DateTimeImmutable $releaseDate = null;
+    private ?\DateTime $releaseDate = null;
 
     #[ORM\Column(nullable: true)]
     #[Groups([Product::GROUP_PRODUCT_READ])]
@@ -66,13 +66,13 @@ class BookUserData
     #[Groups([Product::GROUP_PRODUCT_READ])]
     private ?string $comment = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Product::GROUP_PRODUCT_READ])]
-    private ?\DateTimeImmutable $dateUpdated = null;
+    private ?\DateTime $dateUpdated = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Product::GROUP_PRODUCT_READ])]
-    private ?\DateTimeImmutable $dateCreated = null;
+    private ?\DateTime $dateCreated = null;
 
     public function getBook(): Book
     {
@@ -86,12 +86,12 @@ class BookUserData
         return $this;
     }
 
-    public function getReleaseDate(): ?\DateTimeImmutable
+    public function getReleaseDate(): ?\DateTime
     {
         return $this->releaseDate;
     }
 
-    public function setReleaseDate(?\DateTimeImmutable $releaseDate): static
+    public function setReleaseDate(?\DateTime $releaseDate): static
     {
         $this->releaseDate = $releaseDate;
 

@@ -8,12 +8,12 @@ use Doctrine\ORM\Mapping as ORM;
 
 trait DateUpdatedTimestampTrait
 {
-    public function getDateUpdated(): ?\DateTimeImmutable
+    public function getDateUpdated(): ?\DateTime
     {
         return $this->dateUpdated;
     }
 
-    public function setDateUpdated(\DateTimeImmutable $dateUpdated): static
+    public function setDateUpdated(\DateTime $dateUpdated): static
     {
         $this->dateUpdated = $dateUpdated;
 
@@ -24,7 +24,7 @@ trait DateUpdatedTimestampTrait
     public function onPreUpdate(): void
     {
         if (null === $this->dateUpdated) {
-            $this->dateUpdated = new \DateTimeImmutable();
+            $this->dateUpdated = new \DateTime();
         }
     }
 
@@ -32,7 +32,7 @@ trait DateUpdatedTimestampTrait
     public function onPrePersist(): void
     {
         if (null === $this->dateUpdated) {
-            $this->dateUpdated = new \DateTimeImmutable();
+            $this->dateUpdated = new \DateTime();
         }
     }
 }

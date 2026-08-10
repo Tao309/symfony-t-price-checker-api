@@ -66,7 +66,7 @@ class ImportProductPricesCommand extends CommonImportCommand
     {
         $entity = new ProductPrice()
             ->setPrice($row[self::FIELD_PRICE])
-            ->setDateCreated(new \DateTimeImmutable($row[self::FIELD_DATE_CREATED]))
+            ->setDateCreated(new \DateTime($row[self::FIELD_DATE_CREATED]))
             ->setDateCreatedString($row[self::FIELD_DATE_CREATED])
         ;
 

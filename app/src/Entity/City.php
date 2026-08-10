@@ -8,6 +8,7 @@ use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\DateUpdatedTimestampTrait;
 use App\Entity\Trait\IdentifierTrait;
 use App\Repository\CityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CityRepository::class)]
@@ -30,11 +31,11 @@ class City
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $dateUpdated = null;
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
+    private ?\DateTime $dateUpdated = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $dateCreated = null;
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
+    private ?\DateTime $dateCreated = null;
 
     public function getCode(): ?string
     {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\EventListener;
 
 use App\Cache\ShopCacheProvider;
+use App\Service\ShopService;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 final readonly class HeaderCheckListener
 {
     public function __construct(
+        private ShopService $shopService,
         private ShopCacheProvider $shopCacheProvider,
         #[Autowire('%env(X_REQUESTED_WITH)%')]
         private string $requestedWith,
@@ -49,5 +51,8 @@ final readonly class HeaderCheckListener
         ) {
             throw new AccessDeniedHttpException('Missing required headers values');
         }
+
+        $this->shopService->setShopId($shopId);
+        $this->shopService->setShopType($shopType);
     }
 }

@@ -15,6 +15,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 
 #[ORM\Entity(repositoryClass: ProductUserDataRepository::class)]
 #[ApiResource(
@@ -39,6 +40,8 @@ class ProductUserData
     use DateCreatedTimestampTrait;
     use DateUpdatedTimestampTrait;
 
+    public const string GROUP_PUD_WRITE_UPDATE = 'product_user_data:write:update';
+
     #[ORM\Id]
     #[ApiProperty(identifier: true)]
     #[ORM\OneToOne(targetEntity: Product::class, inversedBy: 'productUserData')]
@@ -48,47 +51,58 @@ class ProductUserData
     #[ApiProperty(identifier: true)]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[SerializedName('user')]
     private ?User $userCreated = null;
 
     #[ORM\Column]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_PUD_WRITE_UPDATE])]
+    #[SerializedName('available')]
     private ?bool $available = null;
 
-    #[ORM\Column(nullable: true)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
-    private ?\DateTimeImmutable $notAvailableDateFrom = null;
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE, nullable: true)]
+    #[Groups([Product::GROUP_PRODUCT_READ,  self::GROUP_PUD_WRITE_UPDATE])]
+    #[SerializedName('not_available_date_from')]
+    private ?\DateTime $notAvailableDateFrom = null;
+
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE, nullable: true)]
+    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_PUD_WRITE_UPDATE])]
+    #[SerializedName('available_date_from')]
+    private ?\DateTime $availableDateFrom = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
-    private ?\DateTimeImmutable $availableDateFrom = null;
-
-    #[ORM\Column(nullable: true)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_PUD_WRITE_UPDATE])]
+    #[SerializedName('listen_price_value')]
     private ?int $listenPriceValue = null;
 
     #[ORM\Column(type: Types::SMALLINT, nullable: true)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_PUD_WRITE_UPDATE])]
+    #[SerializedName('listen_qty_value')]
     private ?int $listenQtyValue = null;
 
-    #[ORM\Column(nullable: true)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
-    private ?\DateTimeImmutable $releaseDate = null;
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE, nullable: true)]
+    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_PUD_WRITE_UPDATE])]
+    #[SerializedName('release_date')]
+    private ?\DateTime $releaseDate = null;
 
     #[ORM\Column]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_PUD_WRITE_UPDATE])]
+    #[SerializedName('is_archive')]
     private ?bool $isArchive = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_PUD_WRITE_UPDATE])]
+    #[SerializedName('comment')]
     private ?string $comment = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Product::GROUP_PRODUCT_READ])]
-    private ?\DateTimeImmutable $dateUpdated = null;
+    #[SerializedName('date_updated')]
+    private ?\DateTime $dateUpdated = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Product::GROUP_PRODUCT_READ])]
-    private ?\DateTimeImmutable $dateCreated = null;
+    #[SerializedName('date_created')]
+    private ?\DateTime $dateCreated = null;
 
     public function getProduct(): ?Product
     {
@@ -126,24 +140,24 @@ class ProductUserData
         return $this;
     }
 
-    public function getNotAvailableDateFrom(): ?\DateTimeImmutable
+    public function getNotAvailableDateFrom(): ?\DateTime
     {
         return $this->notAvailableDateFrom;
     }
 
-    public function setNotAvailableDateFrom(?\DateTimeImmutable $notAvailableDateFrom): static
+    public function setNotAvailableDateFrom(?\DateTime $notAvailableDateFrom): static
     {
         $this->notAvailableDateFrom = $notAvailableDateFrom;
 
         return $this;
     }
 
-    public function getAvailableDateFrom(): ?\DateTimeImmutable
+    public function getAvailableDateFrom(): ?\DateTime
     {
         return $this->availableDateFrom;
     }
 
-    public function setAvailableDateFrom(?\DateTimeImmutable $availableDateFrom): static
+    public function setAvailableDateFrom(?\DateTime $availableDateFrom): static
     {
         $this->availableDateFrom = $availableDateFrom;
 
@@ -174,12 +188,12 @@ class ProductUserData
         return $this;
     }
 
-    public function getReleaseDate(): ?\DateTimeImmutable
+    public function getReleaseDate(): ?\DateTime
     {
         return $this->releaseDate;
     }
 
-    public function setReleaseDate(?\DateTimeImmutable $releaseDate): static
+    public function setReleaseDate(?\DateTime $releaseDate): static
     {
         $this->releaseDate = $releaseDate;
 

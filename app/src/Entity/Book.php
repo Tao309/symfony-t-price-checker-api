@@ -34,33 +34,6 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(
             requirements: ['id' => '\d+'],
             openapi: new Operation(
-                //                responses: [
-                //                    200 => new Model\Response(
-                //                        description: 'Успешный ответ',
-                //                        content: new \ArrayObject([
-                //                            'application/ld+json' => [
-                //                                'schema' => [
-                //                                    'type' => 'object',
-                //                                    'properties' => [
-                //                                        'entity' => [
-                //                                            '$ref' => '#/components/schemas/Book.jsonld',
-                //                                        ],
-                //                                    ],
-                //                                ],
-                //                            ],
-                //                            'application/json' => [
-                //                                'schema' => [
-                //                                    'type' => 'object',
-                //                                    'properties' => [
-                //                                        'entity' => [
-                //                                            '$ref' => '#/components/schemas/Book'
-                //                                        ],
-                //                                    ],
-                //                                ],
-                //                            ],
-                //                        ])
-                //                    ),
-                //                ],
                 summary: 'Получить книгу',
             ),
             normalizationContext: ['groups' => [self::GROUP_BOOK_READ]],
@@ -124,6 +97,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ],
                 summary: 'Создать книгу',
             ),
+            normalizationContext: ['groups' => [self::GROUP_BOOK_READ]],
             denormalizationContext: ['groups' => [self::GROUP_BOOK_WRITE]],
             processor: WrapEntityProcessor::class,
         ),
@@ -160,6 +134,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ],
                 summary: 'Обновить книгу',
             ),
+            normalizationContext: ['groups' => [self::GROUP_BOOK_READ]],
             denormalizationContext: ['groups' => [self::GROUP_BOOK_WRITE]],
             processor: WrapEntityProcessor::class,
         ),
@@ -313,13 +288,13 @@ class Book implements UserAwareInterface
     #[Groups([self::GROUP_BOOK_READ])]
     private ?User $userCreated = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([self::GROUP_BOOK_READ])]
-    private ?\DateTimeImmutable $dateUpdated = null;
+    private ?\DateTime $dateUpdated = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([self::GROUP_BOOK_READ])]
-    private ?\DateTimeImmutable $dateCreated = null;
+    private ?\DateTime $dateCreated = null;
 
     #[ORM\OneToOne(targetEntity: BookUserData::class, mappedBy: 'book')]
     #[MaxDepth(1)]

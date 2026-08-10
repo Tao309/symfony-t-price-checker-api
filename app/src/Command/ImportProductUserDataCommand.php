@@ -84,25 +84,25 @@ class ImportProductUserDataCommand extends CommonImportCommand
             ->setAvailable($row[self::FIELD_AVAILABLE])
             ->setNotAvailableDateFrom(
                 $row[self::FIELD_NOT_AVAILABLE_DATE_FROM]
-                    ? new \DateTimeImmutable($row[self::FIELD_NOT_AVAILABLE_DATE_FROM])
+                    ? new \DateTime($row[self::FIELD_NOT_AVAILABLE_DATE_FROM])
                     : null
             )
             ->setAvailableDateFrom(
                 $row[self::FIELD_AVAILABLE_DATE_FROM]
-                    ? new \DateTimeImmutable($row[self::FIELD_AVAILABLE_DATE_FROM])
+                    ? new \DateTime($row[self::FIELD_AVAILABLE_DATE_FROM])
                     : null
             )
             ->setListenPriceValue($row[self::FIELD_LISTEN_PRICE_VALUE])
             ->setListenQtyValue($row[self::FIELD_LISTEN_QTY_VALUE])
             ->setReleaseDate(
                 $row[self::FIELD_RELEASE_DATE]
-                    ? new \DateTimeImmutable($row[self::FIELD_RELEASE_DATE])
+                    ? new \DateTime($row[self::FIELD_RELEASE_DATE])
                     : null
             )
             ->setIsArchive($row[self::FIELD_IS_ARCHIVE])
             ->setComment($row[self::FIELD_COMMENT])
-            ->setDateUpdated(new \DateTimeImmutable($row[self::FIELD_DATE_UPDATED]))
-            ->setDateCreated(new \DateTimeImmutable($row[self::FIELD_DATE_CREATED]))
+            ->setDateUpdated(new \DateTime($row[self::FIELD_DATE_UPDATED]))
+            ->setDateCreated(new \DateTime($row[self::FIELD_DATE_CREATED]))
         ;
 
         // Проставление товара

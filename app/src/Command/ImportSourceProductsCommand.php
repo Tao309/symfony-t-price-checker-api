@@ -62,8 +62,8 @@ class ImportSourceProductsCommand extends CommonImportCommand
         $entity = new SourceProduct()
             ->setId($row[self::FIELD_ID])
             ->setTitle($row[self::FIELD_TITLE])
-            ->setDateUpdated(new \DateTimeImmutable($row[self::FIELD_DATE_UPDATED]))
-            ->setDateCreated(new \DateTimeImmutable($row[self::FIELD_DATE_CREATED]))
+            ->setDateUpdated(new \DateTime($row[self::FIELD_DATE_UPDATED]))
+            ->setDateCreated(new \DateTime($row[self::FIELD_DATE_CREATED]))
         ;
 
         // Проставление типа источника товара

@@ -19,12 +19,17 @@ use App\Entity\Trait\DateUpdatedTimestampTrait;
 use App\Entity\Trait\IdentifierTrait;
 use App\Entity\Trait\UserAwareTrait;
 use App\Repository\ProductRepository;
+use App\State\PatchProductProcessor;
 use App\State\ProductProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\Ignore;
 use Symfony\Component\Serializer\Attribute\MaxDepth;
+use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 #[ORM\Table(options: ['comment' => 'Продукт'])]
@@ -40,7 +45,8 @@ use Symfony\Component\Serializer\Attribute\MaxDepth;
             normalizationContext: [
                 'groups' => [self::GROUP_PRODUCT_READ],
                 'enable_max_depth' => true,
-            ]
+            ],
+            provider: ProductProvider::class
         ),
         new GetCollection(
             uriVariables: [],
@@ -56,32 +62,70 @@ use Symfony\Component\Serializer\Attribute\MaxDepth;
                 ]
             ),
             normalizationContext: ['groups' => [self::GROUP_PRODUCT_READ]],
+            provider: ProductProvider::class,
             parameters: [
                 'ids' => new QueryParameter(
                     required: true
                 ),
-            ],
+            ]
         ),
         new Post(
             openapi: new Operation(
                 summary: 'Создать товар',
             ),
-            denormalizationContext: ['groups' => [self::GROUP_PRODUCT_WRITE]],
+            normalizationContext: ['groups' => [self::GROUP_PRODUCT_READ]],
+            denormalizationContext: ['groups' => [self::GROUP_PRODUCT_WRITE_CREATE]],
         ),
         new Patch(
+            inputFormats: ['json' => ['application/json']],
             requirements: ['id' => '\d+'],
             openapi: new Operation(
+                responses: [
+                    200 => new Model\Response(
+                        description: 'Успешный ответ',
+                        content: new \ArrayObject([
+                            'application/ld+json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'product' => [
+                                            '$ref' => '#/components/schemas/Product.jsonld',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'product' => [
+                                            '$ref' => '#/components/schemas/Product',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ])
+                    ),
+                ],
                 summary: 'Обновить товар',
             ),
-            denormalizationContext: ['groups' => [self::GROUP_PRODUCT_WRITE]],
+            normalizationContext: ['groups' => [self::GROUP_PRODUCT_READ]],
+            denormalizationContext: [
+                'groups' => [
+                    self::GROUP_PRODUCT_WRITE_UPDATE,
+                    ProductUserData::GROUP_PUD_WRITE_UPDATE,
+                ],
+            ],
+            provider: ProductProvider::class,
+            processor: PatchProductProcessor::class
         ),
     ],
     order: ['id' => 'DESC'],
     security: "is_granted('ROLE_USER')",
-    provider: ProductProvider::class
 )]
 #[ApiFilter(SearchFilter::class, properties: [
     'shopProductId' => 'exact',
+    'dates.userCreated.id' => 'exact',
 ])]
 class Product implements UserAwareInterface
 {
@@ -91,7 +135,8 @@ class Product implements UserAwareInterface
     use UserAwareTrait;
 
     public const string GROUP_PRODUCT_READ = 'product:read';
-    public const string GROUP_PRODUCT_WRITE = 'product:write';
+    public const string GROUP_PRODUCT_WRITE_CREATE = 'product:write:create';
+    public const string GROUP_PRODUCT_WRITE_UPDATE = 'product:write:update';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -100,31 +145,33 @@ class Product implements UserAwareInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 30)]
-    #[Groups([self::GROUP_PRODUCT_READ, self::GROUP_PRODUCT_WRITE])]
+    #[Groups([self::GROUP_PRODUCT_READ, self::GROUP_PRODUCT_WRITE_CREATE])]
     private ?string $shopProductId = null;
 
     #[ORM\Column(length: 20, nullable: true)]
-    #[Groups([self::GROUP_PRODUCT_READ, self::GROUP_PRODUCT_WRITE])]
+    #[Groups([self::GROUP_PRODUCT_READ, self::GROUP_PRODUCT_WRITE_CREATE])]
     private ?string $shopProductCode = null;
 
     #[ORM\ManyToOne]
-    #[Groups([self::GROUP_PRODUCT_READ])]
+    #[Groups([self::GROUP_PRODUCT_READ, self::GROUP_PRODUCT_WRITE_CREATE])]
     private ?SourceProduct $sourceProduct = null;
 
     #[ORM\ManyToOne]
-    #[Groups([self::GROUP_PRODUCT_READ])]
+    #[Groups([self::GROUP_PRODUCT_READ, self::GROUP_PRODUCT_WRITE_CREATE])]
     private ?Book $book = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups([self::GROUP_PRODUCT_READ])]
+    #[Assert\NotNull(groups: [self::GROUP_PRODUCT_WRITE_CREATE])]
+    #[Groups([self::GROUP_PRODUCT_READ, self::GROUP_PRODUCT_WRITE_CREATE])]
     private ?Shop $shop = null;
 
     #[ORM\ManyToOne]
     private ?City $city = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups([self::GROUP_PRODUCT_READ, self::GROUP_PRODUCT_WRITE])]
+    #[Assert\NotNull(groups: [self::GROUP_PRODUCT_WRITE_CREATE, self::GROUP_PRODUCT_WRITE_UPDATE])]
+    #[Groups([self::GROUP_PRODUCT_READ, self::GROUP_PRODUCT_WRITE_CREATE, self::GROUP_PRODUCT_WRITE_UPDATE])]
     private ?string $title = null;
 
     #[ORM\ManyToOne]
@@ -132,18 +179,23 @@ class Product implements UserAwareInterface
     #[Groups([self::GROUP_PRODUCT_READ])]
     private ?User $userCreated = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([self::GROUP_PRODUCT_READ])]
-    private ?\DateTimeImmutable $dateUpdated = null;
+    private ?\DateTime $dateUpdated = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([self::GROUP_PRODUCT_READ])]
-    private ?\DateTimeImmutable $dateCreated = null;
+    private ?\DateTime $dateCreated = null;
 
     /**
      * @var Collection<int, ProductPrice>
      */
-    #[ORM\OneToMany(targetEntity: ProductPrice::class, mappedBy: 'product')]
+    #[ORM\OneToMany(
+        targetEntity: ProductPrice::class,
+        mappedBy: 'product',
+        cascade: ['persist', 'refresh'],
+        orphanRemoval: true,
+    )]
     #[MaxDepth(1)]
     #[Groups([self::GROUP_PRODUCT_READ])]
     private Collection $prices;
@@ -151,14 +203,20 @@ class Product implements UserAwareInterface
     /**
      * @var Collection<int, ProductStock>
      */
-    #[ORM\OneToMany(targetEntity: ProductStock::class, mappedBy: 'product')]
+    #[ORM\OneToMany(
+        targetEntity: ProductStock::class,
+        mappedBy: 'product',
+        cascade: ['persist', 'refresh'],
+        orphanRemoval: true,
+    )]
     #[MaxDepth(1)]
     #[Groups([self::GROUP_PRODUCT_READ])]
     private Collection $stocks;
 
-    #[ORM\OneToOne(targetEntity: ProductUserData::class, mappedBy: 'product')]
+    #[ORM\OneToOne(targetEntity: ProductUserData::class, mappedBy: 'product', cascade: ['persist', 'refresh'])]
     #[MaxDepth(1)]
-    #[Groups([self::GROUP_PRODUCT_READ])]
+    #[Groups([self::GROUP_PRODUCT_READ, ProductUserData::GROUP_PUD_WRITE_UPDATE])]
+    #[SerializedName('product_user_data')]
     private ?ProductUserData $productUserData = null;
 
     public function __construct()
@@ -261,6 +319,15 @@ class Product implements UserAwareInterface
 
     public function addPrice(ProductPrice $productPrice): static
     {
+        foreach ($this->prices as $price) {
+            if ($price->getDateCreatedString() === $productPrice->getDateCreatedString()
+            ) {
+                $price->setPrice($productPrice->getPrice());
+
+                return $this;
+            }
+        }
+
         if (!$this->prices->contains($productPrice)) {
             $this->prices->add($productPrice);
             $productPrice->setProduct($this);
@@ -280,6 +347,14 @@ class Product implements UserAwareInterface
         return $this;
     }
 
+    #[Ignore]
+    public function getMinPrice(): ?int
+    {
+        return min(
+            array_map(static fn ($priceDate) => $priceDate->getPrice(), $this->getPrices()->toArray())
+        );
+    }
+
     /**
      * @return Collection<int, ProductStock>
      */
@@ -290,6 +365,16 @@ class Product implements UserAwareInterface
 
     public function addStock(ProductStock $productStock): static
     {
+        foreach ($this->stocks as $stock) {
+            if ($stock->getDateCreatedString() === $productStock->getDateCreatedString()
+            ) {
+                $stock->setQty($productStock->getQty());
+                $stock->setLog($productStock->getLog());
+
+                return $this;
+            }
+        }
+
         if (!$this->stocks->contains($productStock)) {
             $this->stocks->add($productStock);
             $productStock->setProduct($this);
@@ -307,6 +392,18 @@ class Product implements UserAwareInterface
         }
 
         return $this;
+    }
+
+    #[Ignore]
+    public function getLastQty(): ?int
+    {
+        return $this->getStocks()->last()->getQty();
+    }
+
+    #[Ignore]
+    public function getLastStock(): ?ProductStock
+    {
+        return $this->getStocks()->last();
     }
 
     public function getProductUserData(): ?ProductUserData

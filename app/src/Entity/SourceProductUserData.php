@@ -61,13 +61,13 @@ class SourceProductUserData
     #[Groups([Product::GROUP_PRODUCT_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
     private ?string $comment = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Product::GROUP_PRODUCT_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
-    private ?\DateTimeImmutable $dateUpdated = null;
+    private ?\DateTime $dateUpdated = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Product::GROUP_PRODUCT_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
-    private ?\DateTimeImmutable $dateCreated = null;
+    private ?\DateTime $dateCreated = null;
 
     public function getSourceProduct(): ?SourceProduct
     {

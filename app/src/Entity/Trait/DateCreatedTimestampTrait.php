@@ -8,12 +8,12 @@ use Doctrine\ORM\Mapping as ORM;
 
 trait DateCreatedTimestampTrait
 {
-    public function getDateCreated(): ?\DateTimeImmutable
+    public function getDateCreated(): ?\DateTime
     {
         return $this->dateCreated;
     }
 
-    public function setDateCreated(\DateTimeImmutable $dateCreated): static
+    public function setDateCreated(\DateTime $dateCreated): static
     {
         $this->dateCreated = $dateCreated;
 
@@ -24,7 +24,7 @@ trait DateCreatedTimestampTrait
     public function setDateCreatedValue(): void
     {
         if (null === $this->dateCreated) {
-            $this->dateCreated = new \DateTimeImmutable();
+            $this->dateCreated = new \DateTime();
         }
     }
 }

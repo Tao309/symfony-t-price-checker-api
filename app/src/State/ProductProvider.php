@@ -7,6 +7,8 @@ namespace App\State;
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\State\ProviderInterface;
 use App\Entity\Product;
 use Doctrine\Common\Collections\Criteria;
@@ -65,7 +67,13 @@ final class ProductProvider implements ProviderInterface
             return $result;
         }
 
-        if ($operation instanceof Get && isset($uriVariables['id'])) {
+        if (isset($uriVariables['id'])
+            && (
+                $operation instanceof Get
+                || $operation instanceof Patch
+                || $operation instanceof Post
+            )
+        ) {
             /**
              * @var Product $result
              */

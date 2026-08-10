@@ -32,12 +32,6 @@ class Shop
 {
     use IdentifierTrait;
 
-    public const string TYPE_OZON = 'ozon';
-    public const string TYPE_WILDBERRIES = 'wildberries';
-    public const string TYPE_CHITAI_GOROD = 'chitai-gorod';
-    public const string TYPE_FFAN = 'ffan';
-    public const string TYPE_KNIGOFAN = 'knigofan';
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

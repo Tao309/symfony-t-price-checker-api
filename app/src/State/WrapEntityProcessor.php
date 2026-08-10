@@ -9,19 +9,17 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Book;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * @implements ProcessorInterface<Book, Book>
  */
-class WrapEntityProcessor implements ProcessorInterface
+readonly class WrapEntityProcessor implements ProcessorInterface
 {
     public function __construct(
-        private readonly SerializerInterface $serializer,
+        private SerializerInterface $serializer,
         #[Autowire(service: 'api_platform.doctrine.orm.state.persist_processor')]
-        private readonly ProcessorInterface $persistProcessor
+        private ProcessorInterface $persistProcessor
     ) {
     }
 
@@ -33,10 +31,8 @@ class WrapEntityProcessor implements ProcessorInterface
             return $result;
         }
 
-        $jsonLdData = $this->serializer->serialize(['entity' => $result], 'jsonld');
-
-        return new JsonResponse($jsonLdData, Response::HTTP_OK, [
-            'Content-Type' => 'application/ld+json',
-        ], true);
+        return [
+            'entity' => $result,
+        ];
     }
 }

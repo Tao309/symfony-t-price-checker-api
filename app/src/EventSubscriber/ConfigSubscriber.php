@@ -9,7 +9,7 @@ use App\Cache\BookPublishingBrandCacheProvider;
 use App\Cache\BookPublishingHouseCacheProvider;
 use App\Cache\BookSeriesCacheProvider;
 use App\Cache\SourceProductTypesCacheProvider;
-use App\Entity\Shop;
+use App\Enum\ShopType;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -78,11 +78,11 @@ final readonly class ConfigSubscriber implements EventSubscriberInterface
             'book_publishing_brands' => $this->bookPublishingBrandCacheProvider->get(),
             'book_series' => $this->bookSeriesCacheProvider->get(),
             'shop_urls' => [
-                Shop::TYPE_WILDBERRIES => $this->urlWb,
-                Shop::TYPE_OZON => $this->urlOzon,
-                Shop::TYPE_CHITAI_GOROD => $this->urlChitaiGorod,
-                Shop::TYPE_FFAN => $this->urlFfan,
-                Shop::TYPE_KNIGOFAN => $this->urlKnigofan,
+                ShopType::Wildberries->value => $this->urlWb,
+                ShopType::Ozon->value => $this->urlOzon,
+                ShopType::ChitaiGorod->value => $this->urlChitaiGorod,
+                ShopType::Ffan->value => $this->urlFfan,
+                ShopType::Knigofan->value => $this->urlKnigofan,
             ],
             'access_rights' => [],
             'app_version' => $this->appVersion ?? 'not-found-version',
