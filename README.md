@@ -26,6 +26,7 @@
   - **GET** `/api/v1/products?ids=406256148,91138231,...` (Получить список товаров)
   - **PATCH** `/api/v1/products/{id}` (Обновить товар)
   - **POST** `/api/v1/products` (Создать товар)
+  - **POST** `/api/v1/products/archive` (Архивировать товар)
 
 
 - **SourceProduct (источник товара)**-

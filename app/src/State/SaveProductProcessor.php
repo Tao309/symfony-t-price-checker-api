@@ -16,6 +16,7 @@ use App\Enum\ProductFlag;
 use App\Repository\ProductRepository;
 use App\Service\DateService;
 use App\Service\ShopService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -31,6 +32,7 @@ final class SaveProductProcessor implements ProcessorInterface
     private bool $isNew = false;
 
     public function __construct(
+        private readonly EntityManagerInterface $em,
         private ValidatorInterface $validator,
         private DateService $dateService,
         private Security $security,
@@ -90,11 +92,35 @@ final class SaveProductProcessor implements ProcessorInterface
         $this->addProductUserData($data);
         $data->setUserCreated($this->security->getUser());
 
+        if ($operation->getUriTemplate() === '/products/archive') {
+            $data = $this->archiveAction($data);
+        }
+
         $this->validator->validate($data, ['groups' => [Product::GROUP_AFTER_CREATE]]);
 
         return [
             'product' => $this->persistProcessor->process($data, $operation, $uriVariables, $context),
         ];
+    }
+
+    private function archiveAction(Product $product): Product
+    {
+        $foundProduct = $this->productRepository->findOneBy([
+            'shop' => $this->shopService->getShop()->getId(),
+            'shopProductId' => $product->getShopProductId(),
+        ]);
+
+        if ($foundProduct) {
+            $foundProduct->getProductUserData()->setIsArchive(
+                $product->getProductUserData()->isArchive()
+            );
+
+            return $foundProduct;
+        }
+
+        $this->isNew = false;
+
+        return $product;
     }
 
     /**

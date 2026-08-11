@@ -111,8 +111,9 @@ use Symfony\Component\Validator\Constraints as Assert;
             validationContext: [
                 'groups' => [self::GROUP_CREATE],
             ],
+            name: 'create_product',
             provider: ProductProvider::class,
-            processor: SaveProductProcessor::class
+            processor: SaveProductProcessor::class,
         ),
         new Patch(
             inputFormats: ['json' => ['application/json']],
@@ -157,6 +158,19 @@ use Symfony\Component\Validator\Constraints as Assert;
             validationContext: [
                 'groups' => [self::GROUP_UPDATE],
             ],
+            provider: ProductProvider::class,
+            processor: SaveProductProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/products/archive',
+            uriVariables: [],
+            openapi: new Operation(
+                summary: 'Архивировать товар',
+            ),
+            normalizationContext: ['groups' => [self::GROUP_READ]],
+            denormalizationContext: ['groups' => [self::GROUP_CREATE, ProductUserData::GROUP_CREATE]],
+            deserialize: true,
+            name: 'archive_product',
             provider: ProductProvider::class,
             processor: SaveProductProcessor::class,
         ),

@@ -40,6 +40,7 @@ final class ProductDenormalizer implements DenormalizerInterface, DenormalizerAw
         $isPatch = false;
 
         $operation = $context['operation'] ?? null;
+        $context['groups'] ??= [];
 
         if ($operation instanceof Patch) {
             $isPatch = $operation instanceof Patch;
