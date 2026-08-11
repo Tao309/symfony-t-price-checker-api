@@ -5,21 +5,16 @@ declare(strict_types=1);
 namespace App\DataFixtures;
 
 use App\Entity\BookBindingType;
-use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 
-class BookBindingTypeFixtures extends Fixture
+class BookBindingTypeFixtures extends CommonFixture
 {
+    protected ?string $seqTable = 'book_binding_type';
+
     private const array IMPORT_DATA = [
         [1, 'Твёрдый переплёт'],
         [2, 'Мягкий переплёт'],
     ];
-
-    public function __construct(
-        protected readonly EntityManagerInterface $em,
-    ) {
-    }
 
     public function load(ObjectManager $manager): void
     {
@@ -36,5 +31,6 @@ class BookBindingTypeFixtures extends Fixture
         }
 
         $manager->flush();
+        $this->updateSequence();
     }
 }

@@ -61,8 +61,8 @@ class ImportBookUserDataCommand extends CommonImportCommand
             self::FIELD_BOOK_ID => (int) $row[0],
             self::FIELD_USER_CREATED_ID => (int) $row[1],
             self::FIELD_RELEASE_DATE => $row[2],
-            self::FIELD_LISTEN_PRICE_VALUE => $row[3],
-            self::FIELD_COMMENT => trim($row[4]),
+            self::FIELD_LISTEN_PRICE_VALUE => $row[3] ? (int) $row[3] : null,
+            self::FIELD_COMMENT => $row[4] ? trim($row[4]) : null,
             self::FIELD_DATE_UPDATED => $row[5],
             self::FIELD_DATE_CREATED => $row[6],
         ];
@@ -71,7 +71,7 @@ class ImportBookUserDataCommand extends CommonImportCommand
     protected function createEntityByImportRowData(array $row): BookUserData
     {
         $entity = new BookUserData()
-            ->setReleaseDate(new \DateTime($row[self::FIELD_RELEASE_DATE]))
+            ->setReleaseDate($row[self::FIELD_RELEASE_DATE] ? new \DateTime($row[self::FIELD_RELEASE_DATE]) : null)
             ->setListenPriceValue($row[self::FIELD_LISTEN_PRICE_VALUE])
             ->setComment($row[self::FIELD_COMMENT])
             ->setDateUpdated(new \DateTime($row[self::FIELD_DATE_UPDATED]))

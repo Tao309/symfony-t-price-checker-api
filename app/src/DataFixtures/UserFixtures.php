@@ -6,16 +6,17 @@ namespace App\DataFixtures;
 
 use App\Entity\AccessToken;
 use App\Entity\User;
-use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class UserFixtures extends Fixture
+class UserFixtures extends CommonFixture
 {
+    protected ?string $seqTable = 'user';
+
     public function __construct(
-        protected readonly EntityManagerInterface $em,
+        EntityManagerInterface $em,
         private readonly UserPasswordHasherInterface $passwordHasher,
         #[Autowire('%env(TOKEN_ADMIN)%')]
         private readonly string $adminToken,
@@ -40,6 +41,7 @@ class UserFixtures extends Fixture
         #[Autowire('%env(ID_USER_3)%')]
         private readonly int $userIdThree,
     ) {
+        parent::__construct($em);
     }
 
     public function load(ObjectManager $manager): void
@@ -119,5 +121,6 @@ class UserFixtures extends Fixture
         $metadata->setIdGenerator(new \Doctrine\ORM\Id\AssignedGenerator());
 
         $manager->flush();
+        $this->updateSequence();
     }
 }

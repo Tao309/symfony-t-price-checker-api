@@ -27,6 +27,7 @@ class ImportSourceProductsCommand extends CommonImportCommand
     private const string FIELD_DATE_CREATED = 'date_created';
 
     protected string $filePath = '/migrations/import/source_products.csv';
+    protected ?string $seqTable = 'source_product';
 
     public function __construct(
         private readonly SourceProductTypeRepository $sourceProductTypeRepository,

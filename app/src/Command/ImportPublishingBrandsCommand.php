@@ -21,6 +21,7 @@ class ImportPublishingBrandsCommand extends CommonImportCommand
     private const string FIELD_DATE_CREATED = 'date_created';
 
     protected string $filePath = '/migrations/import/book_publishing_brand.csv';
+    protected ?string $seqTable = 'book_publishing_brand';
 
     protected function runBeforeFlush(): void
     {

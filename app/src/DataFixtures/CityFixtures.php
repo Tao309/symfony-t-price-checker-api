@@ -5,22 +5,17 @@ declare(strict_types=1);
 namespace App\DataFixtures;
 
 use App\Entity\City;
-use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 
-class CityFixtures extends Fixture
+class CityFixtures extends CommonFixture
 {
+    protected ?string $seqTable = 'city';
+
     private const array IMPORT_DATA = [
         [1, 'КРР', 'Краснодар'],
         [2, 'МОВ', 'Москва'],
         [3, 'СПТ', 'Санкт-Петербург'],
     ];
-
-    public function __construct(
-        protected readonly EntityManagerInterface $em,
-    ) {
-    }
 
     public function load(ObjectManager $manager): void
     {
@@ -38,5 +33,6 @@ class CityFixtures extends Fixture
         }
 
         $manager->flush();
+        $this->updateSequence();
     }
 }

@@ -17,11 +17,12 @@ abstract class CommonImportCommand extends Command
 {
     protected ?SymfonyStyle $io = null;
     protected int $added = 0;
-    protected int $showParsingLog = 1;
-    protected int $isFake = 1;
-    protected int $justCheckParsing = 0;
+    protected bool $showParsingLog = true;
+    protected bool $isFake = true;
+    protected bool $justCheckParsing = false;
     protected array $importData = [];
     protected string $filePath = '';
+    protected ?string $seqTable = null;
 
     abstract protected function fillImportRow(array $row): void;
 
@@ -74,6 +75,9 @@ abstract class CommonImportCommand extends Command
             if (!$this->justCheckParsing) {
                 $this->persistImportData();
             }
+
+            $this->updateSequence();
+            $this->runAtEnd();
         } catch (\Throwable $e) {
             $this->io->error($e->getMessage());
 
@@ -86,8 +90,6 @@ abstract class CommonImportCommand extends Command
         if ($this->isFake) {
             $this->io->warning('Фейковый запуск команды');
         }
-
-        $this->runAtEnd();
 
         return Command::SUCCESS;
     }
@@ -147,7 +149,7 @@ abstract class CommonImportCommand extends Command
 
     protected function persistImportData(): void
     {
-        $this->io->title('Запись в БД...');
+        $this->io->title(static::COMMAND_LABEL . ' => Запись в БД...');
 
         $batchSize = 500;
         $totalRecords = \count($this->importData);
@@ -178,6 +180,8 @@ abstract class CommonImportCommand extends Command
                             $this->runBeforeFlush();
                             $this->em->flush();
                             $this->em->clear();
+                            $this->em->commit();
+                            $this->em->beginTransaction();
                         }
                     }
 
@@ -203,9 +207,30 @@ abstract class CommonImportCommand extends Command
                 $this->em->rollback();
             }
 
-            throw new \RuntimeException('Ошибка при записи в БД: ' . $e->getMessage());
+            throw new \RuntimeException('Ошибка при записи "' . static::COMMAND_LABEL . '" в БД: ' . $e->getMessage());
         }
 
         $this->io->progressFinish();
+    }
+
+    protected function updateSequence(): void
+    {
+        if (!$this->seqTable) {
+            return;
+        }
+
+        $connection = $this->em->getConnection();
+
+        $lastId = $connection->fetchOne('SELECT MAX(id) FROM ' . $this->seqTable);
+
+        if (empty($lastId)) {
+            throw new \RuntimeException(
+                \sprintf('Не найдено значение last ID для %s', $this->seqTable)
+            );
+        }
+
+        $lastValue = $connection->executeStatement("SELECT setval(pg_get_serial_sequence('" . $this->seqTable . "', 'id'), COALESCE(MAX(id), 0) + 1, false) FROM " . $this->seqTable . ';');
+
+        $this->io->info('Обновлён last_value для ' . $this->seqTable . ': ' . $lastValue);
     }
 }

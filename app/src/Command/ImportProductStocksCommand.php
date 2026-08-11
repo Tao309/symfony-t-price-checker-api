@@ -57,7 +57,7 @@ class ImportProductStocksCommand extends CommonImportCommand
     {
         $this->importData[] = [
             self::FIELD_PRODUCT_ID => (int) $row[0],
-            self::FIELD_QTY => $row[1],
+            self::FIELD_QTY => (int) $row[1],
             self::FIELD_DATE_CREATED => $row[2],
             self::FIELD_USER_CREATED_ID => (int) $row[3],
             self::FIELD_LOG => $row[4],
@@ -70,7 +70,9 @@ class ImportProductStocksCommand extends CommonImportCommand
             ->setQty($row[self::FIELD_QTY])
             ->setDateCreated(new \DateTime($row[self::FIELD_DATE_CREATED]))
             ->setDateCreatedString($row[self::FIELD_DATE_CREATED])
-            ->setLog(json_decode($row[self::FIELD_LOG], true))
+            ->setLog(
+                $row[self::FIELD_LOG] ? json_decode($row[self::FIELD_LOG], true) : null
+            )
         ;
 
         // Проставление товара

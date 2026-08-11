@@ -34,6 +34,7 @@ class ImportProductsCommand extends CommonImportCommand
     private const string FIELD_DATE_CREATED = 'date_created';
 
     protected string $filePath = '/migrations/import/products.csv';
+    protected ?string $seqTable = 'product';
 
     public function __construct(
         private readonly UserRepository $userRepository,
@@ -55,13 +56,13 @@ class ImportProductsCommand extends CommonImportCommand
         foreach ($this->importData as $data) {
             try {
                 new \DateTime($data[self::FIELD_DATE_UPDATED]);
-            } catch (\Throwable $e) {
+            } catch (\Throwable) {
                 $parsingErrors[] = [self::FIELD_DATE_UPDATED, $data[self::FIELD_ID]];
             }
 
             try {
                 new \DateTime($data[self::FIELD_DATE_CREATED]);
-            } catch (\Throwable $e) {
+            } catch (\Throwable) {
                 $parsingErrors[] = [self::FIELD_DATE_CREATED, $data[self::FIELD_ID], $data[self::FIELD_TITLE]];
             }
         }

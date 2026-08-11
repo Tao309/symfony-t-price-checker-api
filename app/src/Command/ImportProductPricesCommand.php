@@ -56,7 +56,7 @@ class ImportProductPricesCommand extends CommonImportCommand
     {
         $this->importData[] = [
             self::FIELD_PRODUCT_ID => (int) $row[0],
-            self::FIELD_PRICE => $row[1],
+            self::FIELD_PRICE => (int) $row[1],
             self::FIELD_DATE_CREATED => $row[2],
             self::FIELD_USER_CREATED_ID => (int) $row[3],
         ];

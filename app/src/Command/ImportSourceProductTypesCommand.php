@@ -21,6 +21,7 @@ class ImportSourceProductTypesCommand extends CommonImportCommand
     private const string FIELD_DATE_CREATED = 'date_created';
 
     protected string $filePath = '/migrations/import/source_product_types.csv';
+    protected ?string $seqTable = 'source_product_type';
 
     protected function runBeforeFlush(): void
     {

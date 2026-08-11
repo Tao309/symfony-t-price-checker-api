@@ -48,6 +48,7 @@ class ImportBooksCommand extends CommonImportCommand
     private const string FIELD_DATE_CREATED = 'date_created';
 
     protected string $filePath = '/migrations/import/books.csv';
+    protected ?string $seqTable = 'book';
 
     private array $authorAdded = [];
 
@@ -81,19 +82,19 @@ class ImportBooksCommand extends CommonImportCommand
             self::FIELD_ORIGINAL_TITLE => $row[3],
             self::FIELD_ORIGINAL_AUTHOR => $row[4],
             self::FIELD_ISBN => $row[5],
-            self::FIELD_PAGES => $row[6],
-            self::FIELD_CIRCULATION => $row[7],
+            self::FIELD_PAGES => $row[6] ? (int) $row[6] : null,
+            self::FIELD_CIRCULATION => $row[7] ? (int) $row[7] : null,
             self::FIELD_SIZE => $row[8],
-            self::FIELD_BINDING_TYPE_ID => $row[9],
+            self::FIELD_BINDING_TYPE_ID => (int) $row[9],
             self::FIELD_PUBLISHING_HOUSE_ID => $row[10],
             self::FIELD_PUBLISHING_BRAND_ID => $row[11],
             self::FIELD_BOOK_SERIES_ID => $row[12],
-            self::FIELD_PUBLISH_YEAR => $row[13],
+            self::FIELD_PUBLISH_YEAR => $row[13] ? (int) $row[13] : null,
             self::FIELD_LIVELIB_ID => $row[14],
             self::FIELD_GOODREADS_ID => $row[15],
             self::FIELD_FANTLAB_ID => $row[16],
-            self::FIELD_LIVELIB_RATING => $row[17],
-            self::FIELD_GOODREADS_RATING => $row[18],
+            self::FIELD_LIVELIB_RATING => $row[17] ? (float) $row[17] : null,
+            self::FIELD_GOODREADS_RATING => $row[18] ? (float) $row[18] : null,
             self::FIELD_AUTHOR_USER_ID => $row[19],
             self::FIELD_DATE_UPDATED => $row[20],
             self::FIELD_DATE_CREATED => $row[21],
@@ -253,7 +254,7 @@ class ImportBooksCommand extends CommonImportCommand
         $book->setBookAuthor($foundAuthor);
     }
 
-    private function setBindingType(Book $book, ?string $bindingTypeId): void
+    private function setBindingType(Book $book, int $bindingTypeId): void
     {
         if (empty($bindingTypeId)) {
             throw new \RuntimeException('BindingType cannot be empty');

@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\DataFixtures;
 
 use App\Entity\Shop;
-use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 
-class ShopFixtures extends Fixture
+class ShopFixtures extends CommonFixture
 {
+    protected ?string $seqTable = 'shop';
+
     private const array IMPORT_DATA = [
         [1, 'ozon', 'ozon.ru'],
         [2, 'wildberries', 'wildberries.ru'],
@@ -18,11 +18,6 @@ class ShopFixtures extends Fixture
         [4, 'knigofan', 'knigofan.ru'],
         [5, 'ffan', 'ffan.ru'],
     ];
-
-    public function __construct(
-        protected readonly EntityManagerInterface $em,
-    ) {
-    }
 
     public function load(ObjectManager $manager): void
     {
@@ -40,5 +35,6 @@ class ShopFixtures extends Fixture
         }
 
         $manager->flush();
+        $this->updateSequence();
     }
 }
