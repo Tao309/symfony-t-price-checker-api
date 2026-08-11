@@ -50,20 +50,20 @@ class BookPublishingHouse
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_PRODUCT_READ])]
+    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_READ])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotNull(groups: [self::GROUP_BPH_WRITE])]
-    #[Groups([self::GROUP_BPH_WRITE, Book::GROUP_BOOK_READ, Book::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
+    #[Groups([self::GROUP_BPH_WRITE, Book::GROUP_BOOK_READ, Book::GROUP_BOOK_WRITE, Product::GROUP_READ])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
-    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_PRODUCT_READ])]
+    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_READ])]
     private ?\DateTime $dateUpdated = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
-    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_PRODUCT_READ])]
+    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_READ])]
     private ?\DateTime $dateCreated = null;
 
     public function getName(): ?string

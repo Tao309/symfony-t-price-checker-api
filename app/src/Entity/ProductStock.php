@@ -67,11 +67,11 @@ class ProductStock implements UserAwareInterface
     private ?Product $product = null;
 
     #[ORM\Column]
-    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_STOCK_WRITE, self::GROUP_STOCK_READ])]
+    #[Groups([Product::GROUP_READ, self::GROUP_STOCK_WRITE, self::GROUP_STOCK_READ])]
     private ?int $qty = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
-    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_STOCK_READ])]
+    #[Groups([Product::GROUP_READ, self::GROUP_STOCK_READ])]
     private ?\DateTime $dateCreated = null;
 
     #[ORM\Id]
@@ -81,7 +81,7 @@ class ProductStock implements UserAwareInterface
     private ?User $userCreated = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_STOCK_WRITE, self::GROUP_STOCK_READ])]
+    #[Groups([Product::GROUP_READ, self::GROUP_STOCK_WRITE, self::GROUP_STOCK_READ])]
     private ?array $log = null;
 
     #[ORM\Id]

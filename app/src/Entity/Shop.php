@@ -22,7 +22,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             openapi: new Operation(
                 summary: 'Получить магазин',
             ),
-            normalizationContext: ['groups' => [Product::GROUP_PRODUCT_READ]],
+            normalizationContext: ['groups' => [Product::GROUP_READ]],
         ),
     ],
     order: ['id' => 'DESC'],
@@ -35,11 +35,11 @@ class Shop
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_READ])]
     private ?int $id = null;
 
     #[ORM\Column(length: 20)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_READ])]
     private ?string $type = null;
 
     #[ORM\Column(length: 50)]

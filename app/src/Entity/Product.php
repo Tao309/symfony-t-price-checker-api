@@ -19,8 +19,8 @@ use App\Entity\Trait\DateUpdatedTimestampTrait;
 use App\Entity\Trait\IdentifierTrait;
 use App\Entity\Trait\UserAwareTrait;
 use App\Repository\ProductRepository;
-use App\State\PatchProductProcessor;
 use App\State\ProductProvider;
+use App\State\SaveProductProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -43,7 +43,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 summary: 'Получить товар',
             ),
             normalizationContext: [
-                'groups' => [self::GROUP_PRODUCT_READ],
+                'groups' => [self::GROUP_READ],
                 'enable_max_depth' => true,
             ],
             provider: ProductProvider::class
@@ -61,7 +61,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                     ),
                 ]
             ),
-            normalizationContext: ['groups' => [self::GROUP_PRODUCT_READ]],
+            normalizationContext: ['groups' => [self::GROUP_READ]],
             provider: ProductProvider::class,
             parameters: [
                 'ids' => new QueryParameter(
@@ -70,11 +70,49 @@ use Symfony\Component\Validator\Constraints as Assert;
             ]
         ),
         new Post(
+            inputFormats: ['json' => ['application/json']],
             openapi: new Operation(
+                responses: [
+                    200 => new Model\Response(
+                        description: 'Успешный ответ',
+                        content: new \ArrayObject([
+                            'application/ld+json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'product' => [
+                                            '$ref' => '#/components/schemas/Product.jsonld',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'product' => [
+                                            '$ref' => '#/components/schemas/Product',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ])
+                    ),
+                ],
                 summary: 'Создать товар',
             ),
-            normalizationContext: ['groups' => [self::GROUP_PRODUCT_READ]],
-            denormalizationContext: ['groups' => [self::GROUP_PRODUCT_WRITE_CREATE]],
+            normalizationContext: ['groups' => [self::GROUP_READ]],
+            denormalizationContext: [
+                'groups' => [
+                    self::GROUP_CREATE,
+                    ProductUserData::GROUP_CREATE,
+                ],
+            ],
+            validationContext: [
+                'groups' => [self::GROUP_CREATE],
+            ],
+            provider: ProductProvider::class,
+            processor: SaveProductProcessor::class
         ),
         new Patch(
             inputFormats: ['json' => ['application/json']],
@@ -109,15 +147,18 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ],
                 summary: 'Обновить товар',
             ),
-            normalizationContext: ['groups' => [self::GROUP_PRODUCT_READ]],
+            normalizationContext: ['groups' => [self::GROUP_READ]],
             denormalizationContext: [
                 'groups' => [
-                    self::GROUP_PRODUCT_WRITE_UPDATE,
-                    ProductUserData::GROUP_PUD_WRITE_UPDATE,
+                    self::GROUP_UPDATE,
+                    ProductUserData::GROUP_UPDATE,
                 ],
             ],
+            validationContext: [
+                'groups' => [self::GROUP_UPDATE],
+            ],
             provider: ProductProvider::class,
-            processor: PatchProductProcessor::class
+            processor: SaveProductProcessor::class,
         ),
     ],
     order: ['id' => 'DESC'],
@@ -134,57 +175,61 @@ class Product implements UserAwareInterface
     use IdentifierTrait;
     use UserAwareTrait;
 
-    public const string GROUP_PRODUCT_READ = 'product:read';
-    public const string GROUP_PRODUCT_WRITE_CREATE = 'product:write:create';
-    public const string GROUP_PRODUCT_WRITE_UPDATE = 'product:write:update';
+    public const string GROUP_READ = 'product:read';
+    public const string GROUP_CREATE = 'product:write:create';
+    public const string GROUP_AFTER_CREATE = 'product:write:after_create';
+    public const string GROUP_UPDATE = 'product:write:update';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups([self::GROUP_PRODUCT_READ])]
+    #[Groups([self::GROUP_READ])]
     private ?int $id = null;
 
     #[ORM\Column(length: 30)]
-    #[Groups([self::GROUP_PRODUCT_READ, self::GROUP_PRODUCT_WRITE_CREATE])]
+    #[SerializedName('shop_product_id')]
+    #[Groups([self::GROUP_READ, self::GROUP_CREATE])]
+    #[Assert\NotBlank(groups: [self::GROUP_CREATE, self::GROUP_UPDATE])]
     private ?string $shopProductId = null;
 
     #[ORM\Column(length: 20, nullable: true)]
-    #[Groups([self::GROUP_PRODUCT_READ, self::GROUP_PRODUCT_WRITE_CREATE])]
+    #[SerializedName('shop_product_code')]
+    #[Groups([self::GROUP_READ, self::GROUP_CREATE])]
     private ?string $shopProductCode = null;
 
     #[ORM\ManyToOne]
-    #[Groups([self::GROUP_PRODUCT_READ, self::GROUP_PRODUCT_WRITE_CREATE])]
+    #[Groups([self::GROUP_READ, self::GROUP_CREATE])]
     private ?SourceProduct $sourceProduct = null;
 
     #[ORM\ManyToOne]
-    #[Groups([self::GROUP_PRODUCT_READ, self::GROUP_PRODUCT_WRITE_CREATE])]
+    #[Groups([self::GROUP_READ, self::GROUP_CREATE])]
     private ?Book $book = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Assert\NotNull(groups: [self::GROUP_PRODUCT_WRITE_CREATE])]
-    #[Groups([self::GROUP_PRODUCT_READ, self::GROUP_PRODUCT_WRITE_CREATE])]
+    #[Groups([self::GROUP_READ, self::GROUP_CREATE])]
+    #[Assert\NotBlank(groups: [self::GROUP_CREATE, self::GROUP_UPDATE])]
     private ?Shop $shop = null;
 
     #[ORM\ManyToOne]
     private ?City $city = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotNull(groups: [self::GROUP_PRODUCT_WRITE_CREATE, self::GROUP_PRODUCT_WRITE_UPDATE])]
-    #[Groups([self::GROUP_PRODUCT_READ, self::GROUP_PRODUCT_WRITE_CREATE, self::GROUP_PRODUCT_WRITE_UPDATE])]
+    #[Groups([self::GROUP_READ, self::GROUP_CREATE, self::GROUP_UPDATE])]
+    #[Assert\NotBlank(groups: [self::GROUP_CREATE, self::GROUP_UPDATE])]
     private ?string $title = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups([self::GROUP_PRODUCT_READ])]
+    #[Groups([self::GROUP_READ])]
     private ?User $userCreated = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
-    #[Groups([self::GROUP_PRODUCT_READ])]
+    #[Groups([self::GROUP_READ])]
     private ?\DateTime $dateUpdated = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
-    #[Groups([self::GROUP_PRODUCT_READ])]
+    #[Groups([self::GROUP_READ])]
     private ?\DateTime $dateCreated = null;
 
     /**
@@ -197,7 +242,12 @@ class Product implements UserAwareInterface
         orphanRemoval: true,
     )]
     #[MaxDepth(1)]
-    #[Groups([self::GROUP_PRODUCT_READ])]
+    #[Groups([self::GROUP_READ])]
+    #[Assert\Count(
+        min: 1,
+        minMessage: 'You must add at least one item to the collection.',
+        groups: [self::GROUP_AFTER_CREATE]
+    )]
     private Collection $prices;
 
     /**
@@ -210,13 +260,19 @@ class Product implements UserAwareInterface
         orphanRemoval: true,
     )]
     #[MaxDepth(1)]
-    #[Groups([self::GROUP_PRODUCT_READ])]
+    #[Groups([self::GROUP_READ])]
+    #[Assert\Count(
+        min: 1,
+        minMessage: 'You must add at least one item to the collection.',
+        groups: [self::GROUP_AFTER_CREATE]
+    )]
     private Collection $stocks;
 
     #[ORM\OneToOne(targetEntity: ProductUserData::class, mappedBy: 'product', cascade: ['persist', 'refresh'])]
     #[MaxDepth(1)]
-    #[Groups([self::GROUP_PRODUCT_READ, ProductUserData::GROUP_PUD_WRITE_UPDATE])]
+    #[Groups([self::GROUP_READ, ProductUserData::GROUP_UPDATE, ProductUserData::GROUP_CREATE])]
     #[SerializedName('product_user_data')]
+    #[Assert\NotBlank(groups: [self::GROUP_CREATE])]
     private ?ProductUserData $productUserData = null;
 
     public function __construct()

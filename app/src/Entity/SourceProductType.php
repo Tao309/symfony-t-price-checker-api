@@ -25,7 +25,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             openapi: new Operation(
                 summary: 'Получить тип источника товара',
             ),
-            normalizationContext: ['groups' => [Product::GROUP_PRODUCT_READ]],
+            normalizationContext: ['groups' => [Product::GROUP_READ]],
         ),
     ],
     order: ['id' => 'DESC'],
@@ -40,23 +40,23 @@ class SourceProductType
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups([Product::GROUP_PRODUCT_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
+    #[Groups([Product::GROUP_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups([Product::GROUP_PRODUCT_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
+    #[Groups([Product::GROUP_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
     private ?string $code = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups([Product::GROUP_PRODUCT_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
+    #[Groups([Product::GROUP_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
-    #[Groups([Product::GROUP_PRODUCT_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
+    #[Groups([Product::GROUP_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
     private ?\DateTime $dateUpdated = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
-    #[Groups([Product::GROUP_PRODUCT_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
+    #[Groups([Product::GROUP_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
     private ?\DateTime $dateCreated = null;
 
     public function getCode(): ?string

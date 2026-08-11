@@ -6,7 +6,9 @@ namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\State\ProcessorInterface;
+use ApiPlatform\Validator\ValidatorInterface;
 use App\Entity\Product;
 use App\Entity\ProductPrice;
 use App\Entity\ProductStock;
@@ -22,12 +24,14 @@ use Symfony\Component\Serializer\Exception\ExceptionInterface;
 /**
  * @implements ProcessorInterface<Product, Product>
  */
-class PatchProductProcessor implements ProcessorInterface
+final class SaveProductProcessor implements ProcessorInterface
 {
     private array $parsedPayload = [];
     private array $flags = [];
+    private bool $isNew = false;
 
     public function __construct(
+        private ValidatorInterface $validator,
         private DateService $dateService,
         private Security $security,
         private ProductRepository $productRepository,
@@ -48,9 +52,11 @@ class PatchProductProcessor implements ProcessorInterface
             return null;
         }
 
-        if (!$operation instanceof Patch) {
+        if (!($operation instanceof Patch || $operation instanceof Post)) {
             return null;
         }
+
+        $this->isNew = $operation instanceof Post;
 
         $request = $this->requestStack->getCurrentRequest();
         if ($request) {
@@ -70,7 +76,7 @@ class PatchProductProcessor implements ProcessorInterface
             $foundProduct = $this->productRepository->findBy(
                 [
                     'shop_product_id' => $this->parsedPayload['shop_product_id'],
-                    'shop_id' => $this->shopService->getShopId(),
+                    'shop_id' => $this->shopService->getShop()->getId(),
                 ]
             );
 
@@ -81,6 +87,10 @@ class PatchProductProcessor implements ProcessorInterface
 
         $this->addPrices($data);
         $this->addStocks($data);
+        $this->addProductUserData($data);
+        $data->setUserCreated($this->security->getUser());
+
+        $this->validator->validate($data, ['groups' => [Product::GROUP_AFTER_CREATE]]);
 
         return [
             'product' => $this->persistProcessor->process($data, $operation, $uriVariables, $context),
@@ -113,10 +123,12 @@ class PatchProductProcessor implements ProcessorInterface
             return;
         }
 
-        $minPrice = $product->getMinPrice();
+        if (!$this->isNew) {
+            $minPrice = $product->getMinPrice();
 
-        if ($minPrice && end($prices)['price'] >= $minPrice) {
-            return;
+            if ($minPrice && end($prices)['price'] >= $minPrice) {
+                return;
+            }
         }
 
         foreach ($prices as $priceDate) {
@@ -143,16 +155,18 @@ class PatchProductProcessor implements ProcessorInterface
             return;
         }
 
-        $lastStock = end($stocks);
-        $productLastStock = $product->getLastStock();
+        if (!$this->isNew) {
+            $lastStock = end($stocks);
+            $productLastStock = $product->getLastStock();
 
-        $isLastStockEqualsQty = $lastStock && $productLastStock
-            && $productLastStock->getDateCreated()->format('d.m.Y') === $this->dateService->getDateTime($lastStock['date'])
-                ->format('d.m.Y')
-            && $productLastStock->getQty() === $lastStock['qty'];
+            $isLastStockEqualsQty = $lastStock && $productLastStock
+                && $productLastStock->getDateCreated()->format('d.m.Y') === $this->dateService->getDateTime($lastStock['date'])
+                    ->format('d.m.Y')
+                && $productLastStock->getQty() === $lastStock['qty'];
 
-        if ($isLastStockEqualsQty) {
-            return;
+            if ($isLastStockEqualsQty) {
+                return;
+            }
         }
 
         foreach ($stocks as $stock) {
@@ -167,5 +181,18 @@ class PatchProductProcessor implements ProcessorInterface
 
             $product->addStock($newStock);
         }
+    }
+
+    private function addProductUserData(Product $product): void
+    {
+        if (!$this->isNew) {
+            return;
+        }
+
+        $pud = $product->getProductUserData();
+        $pud
+            ->setUserCreated($this->security->getUser())
+            ->setProduct($product)
+        ;
     }
 }

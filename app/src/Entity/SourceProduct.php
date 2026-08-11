@@ -35,7 +35,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             openapi: new Operation(
                 summary: 'Получить источник товара',
             ),
-            normalizationContext: ['groups' => [Product::GROUP_PRODUCT_READ]],
+            normalizationContext: ['groups' => [Product::GROUP_READ]],
         ),
 
         new GetCollection(
@@ -194,36 +194,36 @@ class SourceProduct
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_READ])]
+    #[Groups([Product::GROUP_READ, self::GROUP_SOURCE_PRODUCT_READ])]
     private ?int $id = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_WRITE])]
+    #[Groups([Product::GROUP_READ, self::GROUP_SOURCE_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_WRITE])]
     private ?SourceProductType $sourceProductType = null;
 
     #[ORM\Column(length: 100)]
     #[Assert\NotNull(groups: [self::GROUP_SOURCE_PRODUCT_WRITE])]
     #[Assert\Length(min: 5, max: 255, groups: [self::GROUP_SOURCE_PRODUCT_WRITE])]
-    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_WRITE])]
+    #[Groups([Product::GROUP_READ, self::GROUP_SOURCE_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_WRITE])]
     private ?string $title = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_READ])]
+    #[Groups([Product::GROUP_READ, self::GROUP_SOURCE_PRODUCT_READ])]
     private ?User $userCreated = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
-    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_READ])]
+    #[Groups([Product::GROUP_READ, self::GROUP_SOURCE_PRODUCT_READ])]
     private ?\DateTime $dateUpdated = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
-    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_READ])]
+    #[Groups([Product::GROUP_READ, self::GROUP_SOURCE_PRODUCT_READ])]
     private ?\DateTime $dateCreated = null;
 
     #[ORM\OneToOne(targetEntity: SourceProductUserData::class, mappedBy: 'sourceProduct')]
     #[MaxDepth(1)]
-    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_SOURCE_PRODUCT_READ])]
+    #[Groups([Product::GROUP_READ, self::GROUP_SOURCE_PRODUCT_READ])]
     private ?SourceProductUserData $sourceProductUserData = null;
 
     public function getSourceProductType(): ?SourceProductType

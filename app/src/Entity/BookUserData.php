@@ -55,23 +55,23 @@ class BookUserData
     private ?User $userCreated;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE, nullable: true)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_READ])]
     private ?\DateTime $releaseDate = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_READ])]
     private ?int $listenPriceValue = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_READ])]
     private ?string $comment = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_READ])]
     private ?\DateTime $dateUpdated = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
-    #[Groups([Product::GROUP_PRODUCT_READ])]
+    #[Groups([Product::GROUP_READ])]
     private ?\DateTime $dateCreated = null;
 
     public function getBook(): Book

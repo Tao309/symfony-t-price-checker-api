@@ -31,7 +31,7 @@ use Symfony\Component\Serializer\Attribute\MaxDepth;
                 'groups' => [
                     self::GROUP_BOOK_AUTHOR_READ,
                     Book::GROUP_BOOK_READ,
-                    Product::GROUP_PRODUCT_READ,
+                    Product::GROUP_READ,
                 ],
                 'enable_max_depth' => true,
             ],
@@ -51,23 +51,23 @@ class BookAuthor
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_PRODUCT_READ])]
+    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_READ])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups([Book::GROUP_BOOK_READ, Book::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
+    #[Groups([Book::GROUP_BOOK_READ, Book::GROUP_BOOK_WRITE, Product::GROUP_READ])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups([Book::GROUP_BOOK_READ, Book::GROUP_BOOK_WRITE, Product::GROUP_PRODUCT_READ])]
+    #[Groups([Book::GROUP_BOOK_READ, Book::GROUP_BOOK_WRITE, Product::GROUP_READ])]
     private ?string $lastName = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
-    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_PRODUCT_READ])]
+    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_READ])]
     private ?\DateTime $dateUpdated = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
-    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_PRODUCT_READ])]
+    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_READ])]
     private ?\DateTime $dateCreated = null;
 
     /**

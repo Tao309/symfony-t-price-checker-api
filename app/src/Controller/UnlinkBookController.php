@@ -46,7 +46,7 @@ class UnlinkBookController extends AbstractController
             $this->productRepository->find($productId),
             'json',
             [
-                'groups' => [Product::GROUP_PRODUCT_READ],
+                'groups' => [Product::GROUP_READ],
             ]
         );
 

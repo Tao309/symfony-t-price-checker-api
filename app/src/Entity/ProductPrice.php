@@ -67,7 +67,7 @@ class ProductPrice implements UserAwareInterface
     private ?Product $product = null;
 
     #[ORM\Column]
-    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_PRICE_WRITE, self::GROUP_PRICE_READ])]
+    #[Groups([Product::GROUP_READ, self::GROUP_PRICE_WRITE, self::GROUP_PRICE_READ])]
     private ?int $price = null;
 
     #[ORM\Id]
@@ -77,7 +77,7 @@ class ProductPrice implements UserAwareInterface
     private ?User $userCreated = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
-    #[Groups([Product::GROUP_PRODUCT_READ, self::GROUP_PRICE_READ])]
+    #[Groups([Product::GROUP_READ, self::GROUP_PRICE_READ])]
     private ?\DateTime $dateCreated = null;
 
     #[ORM\Id]

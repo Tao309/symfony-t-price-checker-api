@@ -4,39 +4,27 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Entity\Shop;
 use App\Enum\ShopType;
 
 class ShopService
 {
-    private ?int $shopId = null;
-    private ?string $shopType = null;
+    private ?Shop $shop = null;
 
-    public function getShopId(): ?int
+    public function getShop(): ?Shop
     {
-        return $this->shopId;
+        return $this->shop;
     }
 
-    public function setShopId(int $shopId): static
+    public function setShop(Shop $shop): static
     {
-        $this->shopId = $shopId;
-
-        return $this;
-    }
-
-    public function getShopType(): ?string
-    {
-        return $this->shopType;
-    }
-
-    public function setShopType(string $shopType): static
-    {
-        $this->shopType = $shopType;
+        $this->shop = $shop;
 
         return $this;
     }
 
     public function isWildberriesShopType(): bool
     {
-        return $this->getShopType() === ShopType::Wildberries->value;
+        return $this->getShop()->getType() === ShopType::Wildberries->value;
     }
 }

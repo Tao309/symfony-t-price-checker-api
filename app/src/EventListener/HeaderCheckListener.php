@@ -38,9 +38,9 @@ final readonly class HeaderCheckListener
         $requestedWith = $request->headers->get('x-requested-with');
         $priceCheckerId = $request->headers->get('t-price-checker-id');
 
-        $shopId = $this->shopCacheProvider->getShopIdByType($shopType);
+        $shop = $this->shopCacheProvider->getShopByType($shopType);
 
-        if (empty($shopId)) {
+        if (empty($shop)) {
             throw new AccessDeniedHttpException('Missing or not correct required shop type');
         }
 
@@ -52,7 +52,6 @@ final readonly class HeaderCheckListener
             throw new AccessDeniedHttpException('Missing required headers values');
         }
 
-        $this->shopService->setShopId($shopId);
-        $this->shopService->setShopType($shopType);
+        $this->shopService->setShop($shop);
     }
 }
