@@ -18,11 +18,11 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @implements ProviderInterface<Product[]|Product|null>
  */
-final class ProductProvider implements ProviderInterface
+final readonly class ProductProvider implements ProviderInterface
 {
     public function __construct(
-        private readonly ProviderInterface $collectionProvider,
-        private readonly ProviderInterface $itemProvider,
+        private ProviderInterface $collectionProvider,
+        private ProviderInterface $itemProvider,
         private Security $security,
         private RequestStack $requestStack,
     ) {
@@ -41,9 +41,9 @@ final class ProductProvider implements ProviderInterface
             return null;
         }
 
-        if ($operation instanceof CollectionOperationInterface) {
-            $context['filters'] ??= [];
+        $context['filters'] ??= [];
 
+        if ($operation instanceof CollectionOperationInterface) {
             $ids = $request->query->get('ids');
 
             if (empty($ids)) {
@@ -74,6 +74,8 @@ final class ProductProvider implements ProviderInterface
                 || $operation instanceof Post
             )
         ) {
+            $context['filters']['shopId'] = $this->security->getUser()->getId();
+
             /**
              * @var Product $result
              */

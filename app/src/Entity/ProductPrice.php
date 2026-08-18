@@ -37,7 +37,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
                 'userCreated' => new Link(fromClass: ProductPrice::class, identifiers: ['userCreated.id']),
                 'dateCreatedString' => new Link(fromClass: ProductPrice::class, identifiers: ['dateCreatedString']),
             ],
-            normalizationContext: ['groups' => [self::GROUP_PRICE_READ]],
+            normalizationContext: ['groups' => [self::GROUP_READ]],
         ),
         new Delete(
             uriTemplate: '/product_prices/{product}/{userCreated}/{dateCreatedString}',
@@ -57,8 +57,8 @@ class ProductPrice implements UserAwareInterface
     use DateCreatedTimestampTrait;
     use UserAwareTrait;
 
-    public const string GROUP_PRICE_READ = 'product_price:read';
-    public const string GROUP_PRICE_WRITE = 'product_price:write';
+    public const string GROUP_READ = 'product_price:read';
+    public const string GROUP_WRITE = 'product_price:write';
 
     #[ORM\Id]
     #[ApiProperty(identifier: true)]
@@ -67,7 +67,7 @@ class ProductPrice implements UserAwareInterface
     private ?Product $product = null;
 
     #[ORM\Column]
-    #[Groups([Product::GROUP_READ, self::GROUP_PRICE_WRITE, self::GROUP_PRICE_READ])]
+    #[Groups([Product::GROUP_READ, self::GROUP_WRITE, self::GROUP_READ])]
     private ?int $price = null;
 
     #[ORM\Id]
@@ -77,7 +77,7 @@ class ProductPrice implements UserAwareInterface
     private ?User $userCreated = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
-    #[Groups([Product::GROUP_READ, self::GROUP_PRICE_READ])]
+    #[Groups([Product::GROUP_READ, self::GROUP_READ])]
     private ?\DateTime $dateCreated = null;
 
     #[ORM\Id]

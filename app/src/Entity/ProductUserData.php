@@ -47,12 +47,13 @@ class ProductUserData
     #[ORM\Id]
     #[ApiProperty(identifier: true)]
     #[ORM\OneToOne(targetEntity: Product::class, inversedBy: 'productUserData')]
+    #[ORM\JoinColumn(name: 'product_id', referencedColumnName: 'id', nullable: false)]
     private ?Product $product = null;
 
     #[ORM\Id]
     #[ApiProperty(identifier: true)]
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\OneToOne]
+    #[ORM\JoinColumn(name: 'user_created_id', referencedColumnName: 'id', nullable: false)]
     #[SerializedName('user')]
     private ?User $userCreated = null;
 

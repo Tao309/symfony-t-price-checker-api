@@ -14,6 +14,8 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\OpenApi\Model;
 use ApiPlatform\OpenApi\Model\Operation;
+use App\Dto\ArchiveProductInputDto;
+use App\Dto\MassSaveProductInputDto;
 use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\DateUpdatedTimestampTrait;
 use App\Entity\Trait\IdentifierTrait;
@@ -33,7 +35,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 #[ORM\Table(options: ['comment' => 'Продукт'])]
-#[ORM\Index(name: 'idx_product_shop_id_product_id', fields: ['shop', 'shopProduct'])]
+#[ORM\UniqueConstraint(name: 'IDX_UNIQUE_SHOP_SHOP_PRODUCT', columns: ['shop_id', 'shop_product_id'])]
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource(
     operations: [
@@ -102,16 +104,9 @@ use Symfony\Component\Validator\Constraints as Assert;
                 summary: 'Создать товар',
             ),
             normalizationContext: ['groups' => [self::GROUP_READ]],
-            denormalizationContext: [
-                'groups' => [
-                    self::GROUP_CREATE,
-                    ProductUserData::GROUP_CREATE,
-                ],
-            ],
-            validationContext: [
-                'groups' => [self::GROUP_CREATE],
-            ],
-            name: 'create_product',
+            denormalizationContext: ['groups' => [self::GROUP_CREATE, ProductUserData::GROUP_CREATE]],
+            validationContext: ['groups' => [self::GROUP_CREATE]],
+            name: self::ACTION_CREATE,
             provider: ProductProvider::class,
             processor: SaveProductProcessor::class,
         ),
@@ -149,29 +144,50 @@ use Symfony\Component\Validator\Constraints as Assert;
                 summary: 'Обновить товар',
             ),
             normalizationContext: ['groups' => [self::GROUP_READ]],
-            denormalizationContext: [
-                'groups' => [
-                    self::GROUP_UPDATE,
-                    ProductUserData::GROUP_UPDATE,
-                ],
-            ],
-            validationContext: [
-                'groups' => [self::GROUP_UPDATE],
-            ],
+            denormalizationContext: ['groups' => [self::GROUP_UPDATE, ProductUserData::GROUP_UPDATE]],
+            validationContext: ['groups' => [self::GROUP_UPDATE]],
+            name: self::ACTION_UPDATE,
             provider: ProductProvider::class,
             processor: SaveProductProcessor::class,
         ),
         new Post(
             uriTemplate: '/products/archive',
+            inputFormats: ['json' => ['application/json']],
             uriVariables: [],
             openapi: new Operation(
                 summary: 'Архивировать товар',
+                requestBody: new Model\RequestBody(
+                    content: new \ArrayObject([
+                        'application/json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'shop_product_id' => ['type' => 'string'],
+                                    'value' => ['type' => 'boolean'],
+                                ],
+                            ],
+                            'example' => [
+                                'shop_product_id' => '5045478318',
+                                'value' => true,
+                            ],
+                        ],
+                    ])
+                ),
             ),
             normalizationContext: ['groups' => [self::GROUP_READ]],
-            denormalizationContext: ['groups' => [self::GROUP_CREATE, ProductUserData::GROUP_CREATE]],
-            deserialize: true,
-            name: 'archive_product',
+            input: ArchiveProductInputDto::class,
+            name: self::ACTION_ARCHIVE,
             provider: ProductProvider::class,
+            processor: SaveProductProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/products/mass-save',
+            inputFormats: ['json' => ['application/json']],
+            openapi: new Operation(
+                summary: 'Массовое сохранение',
+            ),
+            normalizationContext: ['groups' => [self::GROUP_READ]],
+            input: MassSaveProductInputDto::class,
             processor: SaveProductProcessor::class,
         ),
     ],
@@ -180,6 +196,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[ApiFilter(SearchFilter::class, properties: [
     'shopProductId' => 'exact',
+    'shopId' => 'exact',
     'dates.userCreated.id' => 'exact',
 ])]
 class Product implements UserAwareInterface
@@ -193,6 +210,10 @@ class Product implements UserAwareInterface
     public const string GROUP_CREATE = 'product:write:create';
     public const string GROUP_AFTER_CREATE = 'product:write:after_create';
     public const string GROUP_UPDATE = 'product:write:update';
+
+    public const string ACTION_CREATE = 'product.create';
+    public const string ACTION_UPDATE = 'product.update';
+    public const string ACTION_ARCHIVE = 'product.archive';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -282,7 +303,12 @@ class Product implements UserAwareInterface
     )]
     private Collection $stocks;
 
-    #[ORM\OneToOne(targetEntity: ProductUserData::class, mappedBy: 'product', cascade: ['persist', 'refresh'])]
+    #[ORM\OneToOne(
+        targetEntity: ProductUserData::class,
+        mappedBy: 'product',
+        cascade: ['persist', 'refresh', 'detach', 'remove'],
+        orphanRemoval: true
+    )]
     #[MaxDepth(1)]
     #[Groups([self::GROUP_READ, ProductUserData::GROUP_UPDATE, ProductUserData::GROUP_CREATE])]
     #[SerializedName('product_user_data')]
@@ -420,9 +446,11 @@ class Product implements UserAwareInterface
     #[Ignore]
     public function getMinPrice(): ?int
     {
-        return min(
-            array_map(static fn ($priceDate) => $priceDate->getPrice(), $this->getPrices()->toArray())
-        );
+        return $this->getPrices()->count()
+            ? min(
+                array_map(static fn ($priceDate) => $priceDate->getPrice(), $this->getPrices()->toArray())
+            )
+            : null;
     }
 
     /**
@@ -473,7 +501,7 @@ class Product implements UserAwareInterface
     #[Ignore]
     public function getLastStock(): ?ProductStock
     {
-        return $this->getStocks()->last();
+        return $this->getStocks()->count() ? $this->getStocks()->last() : null;
     }
 
     public function getProductUserData(): ?ProductUserData

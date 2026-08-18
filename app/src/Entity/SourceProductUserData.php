@@ -44,6 +44,7 @@ class SourceProductUserData
     #[ORM\Id]
     #[ApiProperty(identifier: true)]
     #[ORM\OneToOne(targetEntity: SourceProduct::class, inversedBy: 'sourceProductUserData')]
+    #[ORM\JoinColumn(name: 'source_product_id', referencedColumnName: 'id', nullable: false)]
     private ?SourceProduct $sourceProduct = null;
 
     #[ORM\Id]

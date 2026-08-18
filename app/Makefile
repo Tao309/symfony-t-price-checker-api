@@ -1,6 +1,6 @@
-cs-fix:
-	php-cs-fixer fix --diff -v --using-cache=no src
-	php-cs-fixer fix --diff -v --using-cache=no tests
+#cs-fix:
+#	php-cs-fixer fix --diff -v --using-cache=no src
+#	php-cs-fixer fix --diff -v --using-cache=no tests
 test:
 	bin/phpunit
 cover:
@@ -21,8 +21,8 @@ cs-check:
 	vendor/bin/php-cs-fixer check && vendor/bin/phpcs ./src
 cs-fix:
 	vendor/bin/php-cs-fixer fix && vendor/bin/phpcbf ./src
-migrate:
-	php bin/console doctrine:migrations:execute 'DoctrineMigrations\Version20260805100000' --up
+#migrate:
+	#php bin/console doctrine:migrations:execute 'DoctrineMigrations\Version20260805100000' --up
 cache:
 	php bin/console doctrine:cache:clear-metadata && php bin/console cache:clear
 

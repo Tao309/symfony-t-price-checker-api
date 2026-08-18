@@ -11,6 +11,7 @@ use App\Entity\ProductUserData;
 use App\Entity\Shop;
 use App\Enum\ProductFlag;
 use App\Service\ShopService;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
@@ -21,7 +22,11 @@ final class ProductDenormalizer implements DenormalizerInterface, DenormalizerAw
 
     private const string ALREADY_CALLED = 'PRODUCT_DENORMALIZER_ALREADY_CALLED';
 
+    private bool $isNew = true;
+    private array $flags = [];
+
     public function __construct(
+        private Security $security,
         private ShopService $shopService,
         private IriConverterInterface $iriConverter,
     ) {
@@ -36,23 +41,26 @@ final class ProductDenormalizer implements DenormalizerInterface, DenormalizerAw
     {
         $context[self::ALREADY_CALLED] = true;
 
-        $flags = $data['flags'] ?? [];
-        $isPatch = false;
+        $this->flags = $data['flags'] ?? [];
+        $this->isNew = empty($data['id']);
 
         $operation = $context['operation'] ?? null;
         $context['groups'] ??= [];
+        $isPatch = $operation instanceof Patch;
 
-        if ($operation instanceof Patch) {
-            $isPatch = $operation instanceof Patch;
-        }
-
-        $toSaveProductUserData = ($flags[ProductFlag::SaveProductUserData->value] ?? false)
+        $toSaveProductUserData = ($this->flags[ProductFlag::SaveProductUserData->value] ?? false)
             && !empty($data['product_user_data']);
 
         if (!$toSaveProductUserData) {
             $removeGroup = $isPatch ? ProductUserData::GROUP_UPDATE : ProductUserData::GROUP_CREATE;
 
             $context['groups'] = array_values(array_diff($context['groups'], [$removeGroup]));
+        }
+
+        $data['product_user_data']['user'] = $this->security->getUser()->getId();
+
+        if (!$this->isNew) {
+            $data['product_user_data']['product'] = $data['id'];
         }
 
         $data['shop'] = $this->iriConverter->getIriFromResource(

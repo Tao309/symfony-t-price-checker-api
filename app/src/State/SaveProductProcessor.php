@@ -9,30 +9,37 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\State\ProcessorInterface;
 use ApiPlatform\Validator\ValidatorInterface;
+use App\Dto\ArchiveProductInputDto;
+use App\Dto\MassSaveProductInputDto;
+use App\Dto\ResponseDto;
 use App\Entity\Product;
 use App\Entity\ProductPrice;
 use App\Entity\ProductStock;
+use App\Entity\ProductUserData;
 use App\Enum\ProductFlag;
 use App\Repository\ProductRepository;
 use App\Service\DateService;
 use App\Service\ShopService;
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Serializer\Exception\ExceptionInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Exception\InvalidArgumentException;
 
 /**
  * @implements ProcessorInterface<Product, Product>
  */
 final class SaveProductProcessor implements ProcessorInterface
 {
-    private array $parsedPayload = [];
+    private array $productData = [];
     private array $flags = [];
-    private bool $isNew = false;
+    private bool $isNew = true;
 
     public function __construct(
-        private readonly EntityManagerInterface $em,
+        private SerializerInterface $serializer,
         private ValidatorInterface $validator,
         private DateService $dateService,
         private Security $security,
@@ -45,82 +52,189 @@ final class SaveProductProcessor implements ProcessorInterface
     }
 
     /**
-     * @throws ExceptionInterface
      * @throws \RequestParseBodyException
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
-        if (!$data instanceof Product) {
-            return null;
-        }
-
         if (!($operation instanceof Patch || $operation instanceof Post)) {
             return null;
         }
 
-        $this->isNew = $operation instanceof Post;
+        if ($data instanceof MassSaveProductInputDto) {
+            $errorMessage = [];
+            $savedProduct = [];
+            $errorsCount = 0;
 
-        $request = $this->requestStack->getCurrentRequest();
-        if ($request) {
-            $this->parsedPayload = $request->getPayload()->all();
-            $this->flags = $this->parsedPayload['flags'] ?? [];
+            $denormalizationContext = $operation->getDenormalizationContext();
+
+            foreach ($data->products as $index => $requestData) {
+                $this->isNew = false;
+
+                try {
+                    if (!empty($requestData['id'])) {
+                        throw new InvalidArgumentException(\sprintf('Поле id пустое в products[%s].', $index));
+                    }
+
+                    if (!empty($requestData['shop_product_id'])) {
+                        throw new InvalidArgumentException(
+                            \sprintf('Поле shop_product_id пустое в products[%s].', $index)
+                        );
+                    }
+
+                    $foundProduct = $this->productRepository->find($requestData['id']);
+
+                    if (!$foundProduct) {
+                        throw new EntityNotFoundException(
+                            \sprintf(
+                                'Не найден product с id = "%s" в products[%s].',
+                                $requestData['id'],
+                                $index
+                            )
+                        );
+                    }
+
+                    if ($foundProduct->getShopProductId() !== $requestData['shop_product_id']) {
+                        throw new InvalidArgumentException(
+                            \sprintf(
+                                'Поле shop_product_id = %s не совпадает с полем сущности Product в products[%s].',
+                                $requestData['shop_product_id'],
+                                $index
+                            )
+                        );
+                    }
+
+                    $validationContext = $denormalizeContext = [];
+                    $denormalizeContext[AbstractObjectNormalizer::DEEP_OBJECT_TO_POPULATE] = true;
+                    $denormalizeContext[AbstractNormalizer::OBJECT_TO_POPULATE] = $foundProduct;
+                    $denormalizeContext['groups'] = $validationContext['groups'] =
+                        [Product::GROUP_UPDATE, ProductUserData::GROUP_UPDATE,
+                        ];
+
+                    $denormalizationContext['groups'] = $denormalizeContext['groups'];
+                    $operation = $operation
+                        ->withDenormalizationContext($denormalizationContext)
+                        ->withValidationContext($validationContext);
+
+                    $denormalizeContext['operation'] = $operation;
+
+                    $product = $this->serializer->denormalize(
+                        $requestData,
+                        Product::class,
+                        'json',
+                        $denormalizeContext
+                    );
+
+                    $this->productData = $requestData;
+                    $productToProcess = $this->saveAction($product, $operation);
+
+                    $savedProduct[] = $this->persistProcessor->process(
+                        $productToProcess,
+                        $operation,
+                        $uriVariables,
+                        $context
+                    );
+                } catch (\Throwable $e) {
+                    ++$errorsCount;
+                    $errorMessage[] = $e->getMessage();
+                }
+            }
+
+            $result = [
+                'products_count' => \count($data->products),
+                'errors_count' => $errorsCount,
+                'saved_count' => \count($savedProduct),
+                'products' => $savedProduct,
+            ];
+
+            $result[ResponseDto::MESSAGE] = $errorMessage ? implode('. ', array_unique($errorMessage)) : 'Products are saved';
+            $result[ResponseDto::SUCCESS] = !$errorsCount;
+
+            return $result;
         }
 
+        if ($data instanceof ArchiveProductInputDto) {
+            $request = $this->requestStack->getCurrentRequest();
+
+            $product = $this->archiveAction(
+                $request->getPayload()->get('shop_product_id'),
+                $request->getPayload()->get('value'),
+            );
+
+            if (!$product) {
+                return [
+                    'message' => 'Product is not exists',
+                    'require_to_create' => true,
+                ];
+            }
+
+            return [
+                'product' => $this->persistProcessor->process($product, $operation, $uriVariables, $context),
+            ];
+        }
+
+        if ($data instanceof Product) {
+            $this->isNew = $operation->getName() === Product::ACTION_CREATE;
+            $request = $this->requestStack->getCurrentRequest();
+            $requestData = $request ? $request->getPayload()->all() : [];
+
+            $this->productData = $requestData;
+            $product = $this->saveAction($data, $operation);
+
+            return [
+                'product' => $this->persistProcessor->process($product, $operation, $uriVariables, $context),
+            ];
+        }
+
+        return null;
+    }
+
+    /**
+     * @throws \RequestParseBodyException
+     */
+    private function saveAction(Product $product, Operation $operation): Product
+    {
+        $this->flags = $this->productData['flags'] ?? [];
         $this->checkShopProductCode();
 
-        $toChangeId = isset($flags[ProductFlag::ChangeId->value]) && $this->shopService->isWildberriesShopType();
+        /*
+         * Если находит товар с не пустым shop_product_code у wildberries, значит уже заменён shop_product_id.
+         * Сохранение не производим, передаваемые ID неверны.
+         */
+        $toChangeId = isset($this->flags[ProductFlag::ChangeId->value]) && $this->shopService->isWildberriesShopType();
 
-        if ($toChangeId && !$data->getId()) {
-            if (empty($this->parsedPayload['shop_product_id'])) {
+        if ($toChangeId && !$product->getId()) {
+            if (empty($this->productData['shop_product_id'])) {
                 throw new \RequestParseBodyException('Поле shop_product_id не заполнено');
             }
 
-            $foundProduct = $this->productRepository->findBy(
-                [
-                    'shop_product_id' => $this->parsedPayload['shop_product_id'],
-                    'shop_id' => $this->shopService->getShop()->getId(),
-                ]
-            );
+            $foundProduct = $this->productRepository->findByShopProductId($this->productData['shop_product_id']);
 
             if ($foundProduct) {
-                $data = $foundProduct;
+                return $foundProduct;
             }
         }
 
-        $this->addPrices($data);
-        $this->addStocks($data);
-        $this->addProductUserData($data);
-        $data->setUserCreated($this->security->getUser());
+        $this->addPrices($product);
+        $this->addStocks($product);
+        $this->addProductUserData($product);
+        $product->setUserCreated($this->security->getUser());
 
-        if ($operation->getUriTemplate() === '/products/archive') {
-            $data = $this->archiveAction($data);
-        }
+        $this->validator->validate($product, $operation->getValidationContext());
 
-        $this->validator->validate($data, ['groups' => [Product::GROUP_AFTER_CREATE]]);
-
-        return [
-            'product' => $this->persistProcessor->process($data, $operation, $uriVariables, $context),
-        ];
+        return $product;
     }
 
-    private function archiveAction(Product $product): Product
+    private function archiveAction(string $shopProductId, bool $value): ?Product
     {
-        $foundProduct = $this->productRepository->findOneBy([
-            'shop' => $this->shopService->getShop()->getId(),
-            'shopProductId' => $product->getShopProductId(),
-        ]);
+        $foundProduct = $this->productRepository->findByShopProductId($shopProductId);
 
         if ($foundProduct) {
-            $foundProduct->getProductUserData()->setIsArchive(
-                $product->getProductUserData()->isArchive()
-            );
+            $foundProduct->getProductUserData()->setIsArchive($value);
 
             return $foundProduct;
         }
 
-        $this->isNew = false;
-
-        return $product;
+        return null;
     }
 
     /**
@@ -132,7 +246,7 @@ final class SaveProductProcessor implements ProcessorInterface
             return;
         }
 
-        if (!empty($this->parsedPayload['shop_product_code'])) {
+        if (!empty($this->productData['shop_product_code'])) {
             return;
         }
 
@@ -141,7 +255,7 @@ final class SaveProductProcessor implements ProcessorInterface
 
     private function addPrices(Product $product): void
     {
-        $prices = $this->parsedPayload['prices'] ?? [];
+        $prices = $this->productData['prices'] ?? [];
 
         $toSaveProductPrices = ($this->flags[ProductFlag::SavePrices->value] ?? false) && !empty($prices);
 
@@ -172,7 +286,7 @@ final class SaveProductProcessor implements ProcessorInterface
 
     private function addStocks(Product $product): void
     {
-        $stocks = $this->parsedPayload['stocks'] ?? [];
+        $stocks = $this->productData['stocks'] ?? [];
 
         $toSaveProductStocks = ($this->flags[ProductFlag::SaveStocks->value] ?? false)
             && !empty($stocks);
@@ -211,14 +325,8 @@ final class SaveProductProcessor implements ProcessorInterface
 
     private function addProductUserData(Product $product): void
     {
-        if (!$this->isNew) {
-            return;
-        }
-
         $pud = $product->getProductUserData();
-        $pud
-            ->setUserCreated($this->security->getUser())
-            ->setProduct($product)
-        ;
+        $pud->setUserCreated($this->security->getUser());
+        $pud->setProduct($product);
     }
 }
