@@ -18,6 +18,10 @@ abstract class CommonFixture extends Fixture
 
     protected function updateSequence(): void
     {
+        if ($this->em->getConnection()->getParams()['driver'] === 'pdo_mysql') {
+            return;
+        }
+
         if (!$this->seqTable) {
             return;
         }

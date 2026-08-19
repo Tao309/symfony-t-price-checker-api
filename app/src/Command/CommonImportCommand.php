@@ -229,6 +229,10 @@ abstract class CommonImportCommand extends Command
             );
         }
 
+        if ($connection->getParams()['driver'] === 'pdo_mysql') {
+            return;
+        }
+
         $lastValue = $connection->executeStatement("SELECT setval(pg_get_serial_sequence('" . $this->seqTable . "', 'id'), COALESCE(MAX(id), 0) + 1, false) FROM " . $this->seqTable . ';');
 
         $this->io->info('Обновлён last_value для ' . $this->seqTable . ': ' . $lastValue);
