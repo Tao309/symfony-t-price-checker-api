@@ -14,6 +14,22 @@ services:
     networks:
       - t-price-checker-api
 
+  mysql:
+    container_name: symfony-t-price-checker-api-mysql
+    image: mysql:8.0.20
+    restart: always
+    environment:
+      MYSQL_USER: ${MYSQL_USER:-tPriceChecker}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-tPriceChecker}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-tPriceChecker}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-tPriceChecker}
+    volumes:
+      - ./mysqldata:/var/lib/mysql:rw
+    ports:
+      - "3306:3306"
+    networks:
+      - t-price-checker-api
+
   php:
     container_name: symfony-t-price-checker-api-php
     build:
@@ -38,12 +54,14 @@ services:
     depends_on:
       - php
       - db
+      - mysql
     networks:
       - t-price-checker-api
 
 
 volumes:
   pgdata:
+  mysqldata:
 
 networks:
   t-price-checker-api:

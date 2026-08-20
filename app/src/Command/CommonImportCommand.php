@@ -177,11 +177,8 @@ abstract class CommonImportCommand extends Command
 
                     if (($i % $batchSize) === 0) {
                         if (!$this->isFake) {
-                            $this->runBeforeFlush();
                             $this->em->flush();
                             $this->em->clear();
-                            $this->em->commit();
-                            $this->em->beginTransaction();
                         }
                     }
 
