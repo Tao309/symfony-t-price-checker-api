@@ -87,10 +87,45 @@ final readonly class ConfigSubscriber implements EventSubscriberInterface
                 ShopType::Ffan->value => $this->urlFfan,
                 ShopType::Knigofan->value => $this->urlKnigofan,
             ],
-            'access_rights' => [],
+            'access_rights' => $this->getAccessRights(),
             'app_version' => $this->appVersion ?? 'not-found-version',
         ];
 
         $response->setContent(json_encode($data));
+    }
+
+    private function getAccessRights(): array
+    {
+        return [
+            'product' => [
+                'update' => true,
+                'create' => true,
+                'limit_enabled' => false,
+                'limit' => null
+            ],
+            'book' => [
+                'update' => true,
+                'create' => true,
+                'limit' => null,
+                'add_publishing_house' => true,
+                'add_publishing_brand' => true,
+                'add_series' => true
+            ],
+            'source_product' => [
+                'enabled' => true,
+                'create' => true,
+                'update' => true,
+                'limit' => null
+            ],
+            'shop' => [
+                'list' => [
+                    'ozon',
+                    'wildberries',
+                    'chitai-gorod',
+                    'ffan',
+                    'knigofan'
+                ]
+            ]
+        ];
     }
 }
