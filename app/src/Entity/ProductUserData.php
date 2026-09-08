@@ -219,4 +219,18 @@ class ProductUserData
 
         return $this;
     }
+
+    #[Groups([Product::GROUP_READ])]
+    #[SerializedName('userId')]
+    public function getUserId(): ?int
+    {
+        return $this->userCreated->getId();
+    }
+
+    #[Groups([Product::GROUP_READ])]
+    #[SerializedName('productId')]
+    public function getProductId(): ?int
+    {
+        return $this->getProduct()?->getId();
+    }
 }

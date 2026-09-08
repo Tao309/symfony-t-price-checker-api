@@ -512,4 +512,18 @@ class Product implements UserAwareInterface
 
         return $this;
     }
+
+    #[Groups([self::GROUP_READ])]
+    #[SerializedName('bookId')]
+    public function getBookId(): ?int
+    {
+        return $this->getBook()?->getId();
+    }
+
+    #[Groups([self::GROUP_READ])]
+    #[SerializedName('sourceProductId')]
+    public function getSourceProductId(): ?int
+    {
+        return $this->getSourceProduct()?->getId();
+    }
 }
