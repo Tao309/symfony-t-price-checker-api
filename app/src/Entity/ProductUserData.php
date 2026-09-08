@@ -14,8 +14,10 @@ use App\Repository\ProductUserDataRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 #[ORM\Entity(repositoryClass: ProductUserDataRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -54,57 +56,48 @@ class ProductUserData
     #[ApiProperty(identifier: true)]
     #[ORM\OneToOne]
     #[ORM\JoinColumn(name: 'user_created_id', referencedColumnName: 'id', nullable: false)]
-    #[SerializedName('user')]
     private ?User $userCreated = null;
 
     #[ORM\Column]
     #[Groups([Product::GROUP_READ, self::GROUP_CREATE, self::GROUP_UPDATE])]
-    #[SerializedName('available')]
     private ?bool $available = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE, nullable: true)]
     #[Groups([Product::GROUP_READ,  self::GROUP_CREATE,  self::GROUP_UPDATE])]
-    #[SerializedName('not_available_date_from')]
     private ?\DateTime $notAvailableDateFrom = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE, nullable: true)]
     #[Groups([Product::GROUP_READ, self::GROUP_CREATE, self::GROUP_UPDATE])]
-    #[SerializedName('available_date_from')]
     private ?\DateTime $availableDateFrom = null;
 
     #[ORM\Column(nullable: true)]
     #[Groups([Product::GROUP_READ, self::GROUP_CREATE, self::GROUP_UPDATE])]
-    #[SerializedName('listen_price_value')]
     private ?int $listenPriceValue = null;
 
     #[ORM\Column(type: Types::SMALLINT, nullable: true)]
     #[Groups([Product::GROUP_READ, self::GROUP_CREATE, self::GROUP_UPDATE])]
-    #[SerializedName('listen_qty_value')]
     private ?int $listenQtyValue = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE, nullable: true)]
     #[Groups([Product::GROUP_READ, self::GROUP_CREATE, self::GROUP_UPDATE])]
-    #[SerializedName('release_date')]
     private ?\DateTime $releaseDate = null;
 
     #[ORM\Column]
     #[Groups([Product::GROUP_READ, self::GROUP_CREATE, self::GROUP_UPDATE])]
-    #[SerializedName('is_archive')]
     private ?bool $isArchive = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups([Product::GROUP_READ, self::GROUP_CREATE, self::GROUP_UPDATE])]
-    #[SerializedName('comment')]
     private ?string $comment = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Product::GROUP_READ])]
-    #[SerializedName('date_updated')]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s'])]
     private ?\DateTime $dateUpdated = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Product::GROUP_READ])]
-    #[SerializedName('date_created')]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s'])]
     private ?\DateTime $dateCreated = null;
 
     public function getProduct(): ?Product

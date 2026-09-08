@@ -1,3 +1,8 @@
 # файлы конфигураций IDE
 /.idea
 /pgdata
+/mysqldata/
+/.git/
+/deploy
+/.github/
+.htaccess

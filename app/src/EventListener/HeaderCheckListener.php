@@ -30,7 +30,7 @@ final readonly class HeaderCheckListener
 
         $request = $event->getRequest();
 
-        if ($request->getRequestUri() === '/api') {
+        if (in_array($request->getRequestUri(), ['/', '/api'])) {
             return;
         }
 

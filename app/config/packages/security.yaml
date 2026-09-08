@@ -43,9 +43,9 @@ security:
             # switch_user: true
 
     access_control:
+        - { path: ^/api/v1, roles: [ROLE_USER, ROLE_ADMIN] }
         - { path: ^/api$, roles: PUBLIC_ACCESS }
         - { path: ^/api/docs, roles: PUBLIC_ACCESS }
-        - { path: ^/api/v1, roles: ROLE_USER }
 
 when@test:
     security:

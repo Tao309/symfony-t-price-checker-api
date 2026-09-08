@@ -21,8 +21,11 @@ use App\State\SourceProductsSearchProvider;
 use App\State\WrapEntityProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\MaxDepth;
+use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SourceProductRepository::class)]
@@ -215,10 +218,12 @@ class SourceProduct
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Product::GROUP_READ, self::GROUP_SOURCE_PRODUCT_READ])]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s'])]
     private ?\DateTime $dateUpdated = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Product::GROUP_READ, self::GROUP_SOURCE_PRODUCT_READ])]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s'])]
     private ?\DateTime $dateCreated = null;
 
     #[ORM\OneToOne(targetEntity: SourceProductUserData::class, mappedBy: 'sourceProduct')]

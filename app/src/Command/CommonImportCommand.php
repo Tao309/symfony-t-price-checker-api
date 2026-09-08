@@ -171,12 +171,17 @@ abstract class CommonImportCommand extends Command
                     $importData = $this->importData[$i];
                     $entity = $this->createEntityByImportRowData($importData);
 
+                    if (!$entity) {
+                        continue;
+                    }
+
                     if (!$this->isFake) {
                         $this->em->persist($entity);
                     }
 
                     if (($i % $batchSize) === 0) {
                         if (!$this->isFake) {
+                            $this->runBeforeFlush();
                             $this->em->flush();
                             $this->em->clear();
                         }

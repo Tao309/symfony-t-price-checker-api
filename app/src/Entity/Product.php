@@ -222,13 +222,11 @@ class Product implements UserAwareInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 30)]
-    #[SerializedName('shop_product_id')]
     #[Groups([self::GROUP_READ, self::GROUP_CREATE])]
     #[Assert\NotBlank(groups: [self::GROUP_CREATE, self::GROUP_UPDATE])]
     private ?string $shopProductId = null;
 
     #[ORM\Column(length: 20, nullable: true)]
-    #[SerializedName('shop_product_code')]
     #[Groups([self::GROUP_READ, self::GROUP_CREATE])]
     private ?string $shopProductCode = null;
 
@@ -311,7 +309,6 @@ class Product implements UserAwareInterface
     )]
     #[MaxDepth(1)]
     #[Groups([self::GROUP_READ, ProductUserData::GROUP_UPDATE, ProductUserData::GROUP_CREATE])]
-    #[SerializedName('product_user_data')]
     #[Assert\NotBlank(groups: [self::GROUP_CREATE])]
     private ?ProductUserData $productUserData = null;
 

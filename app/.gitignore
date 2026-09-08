@@ -30,3 +30,4 @@
 ###< squizlabs/php_codesniffer ###
 /requests/
 /config/reference.php
+/.env.prod

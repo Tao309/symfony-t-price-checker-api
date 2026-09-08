@@ -14,7 +14,9 @@ use App\Entity\Trait\IdentifierTrait;
 use App\Repository\BookPublishingHouseRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BookPublishingHouseRepository::class)]
@@ -60,10 +62,12 @@ class BookPublishingHouse
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_READ])]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s'])]
     private ?\DateTime $dateUpdated = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_READ])]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s'])]
     private ?\DateTime $dateCreated = null;
 
     public function getName(): ?string

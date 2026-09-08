@@ -81,7 +81,7 @@ class ImportBooksCommand extends CommonImportCommand
             self::FIELD_AUTHOR => trim($row[2]),
             self::FIELD_ORIGINAL_TITLE => $row[3],
             self::FIELD_ORIGINAL_AUTHOR => $row[4],
-            self::FIELD_ISBN => $row[5],
+            self::FIELD_ISBN => $row[5] ?? '-',
             self::FIELD_PAGES => $row[6] ? (int) $row[6] : null,
             self::FIELD_CIRCULATION => $row[7] ? (int) $row[7] : null,
             self::FIELD_SIZE => $row[8],

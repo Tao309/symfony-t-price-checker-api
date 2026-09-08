@@ -15,7 +15,10 @@ use App\Repository\BookUserDataRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 #[ORM\Entity(repositoryClass: BookUserDataRepository::class)]
 #[ORM\UniqueConstraint(name: 'bud_book_user', columns: ['book_id', 'user_created_id'])]
@@ -68,10 +71,12 @@ class BookUserData
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Product::GROUP_READ])]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s'])]
     private ?\DateTime $dateUpdated = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Product::GROUP_READ])]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s'])]
     private ?\DateTime $dateCreated = null;
 
     public function getBook(): Book
@@ -120,5 +125,19 @@ class BookUserData
         $this->comment = $comment;
 
         return $this;
+    }
+
+    #[Groups([Product::GROUP_READ])]
+    #[SerializedName('userId')]
+    public function getUserId(): ?int
+    {
+        return $this->userCreated->getId();
+    }
+
+    #[Groups([Product::GROUP_READ])]
+    #[SerializedName('bookId')]
+    public function getBookId(): ?int
+    {
+        return $this->book->getId();
     }
 }

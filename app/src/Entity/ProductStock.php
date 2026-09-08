@@ -18,6 +18,9 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Serializer\Attribute\Context;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 #[ORM\Entity(repositoryClass: ProductStockRepository::class)]
 #[ORM\Table(options: ['comment' => 'Сток товара'])]
@@ -40,10 +43,10 @@ use Symfony\Component\Serializer\Attribute\Groups;
             normalizationContext: ['groups' => [self::GROUP_READ]],
         ),
         new Delete(
-            uriTemplate: '/product_stocks/{product}/{userCreated}/{dateCreatedString}',
+            uriTemplate: '/product_stocks/{product}/{qty}/{dateCreatedString}',
             uriVariables: [
                 'product' => new Link(fromClass: ProductStock::class, identifiers: ['product']),
-                'userCreated' => new Link(fromClass: ProductStock::class, identifiers: ['userCreated']),
+                'qty' => new Link(fromClass: ProductStock::class, identifiers: ['qty']),
                 'dateCreatedString' => new Link(fromClass: ProductStock::class, identifiers: ['dateCreatedString']),
             ],
         ),
@@ -72,6 +75,8 @@ class ProductStock implements UserAwareInterface
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Product::GROUP_READ, self::GROUP_READ])]
+    #[SerializedName('date')]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s'])]
     private ?\DateTime $dateCreated = null;
 
     #[ORM\Id]

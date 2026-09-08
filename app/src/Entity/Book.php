@@ -22,8 +22,11 @@ use App\State\BooksSearchProvider;
 use App\State\WrapEntityProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\MaxDepth;
+use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
@@ -285,15 +288,17 @@ class Book implements UserAwareInterface
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups([self::GROUP_BOOK_READ])]
+    #[Groups([self::GROUP_BOOK_READ, Product::GROUP_READ])]
     private ?User $userCreated = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
-    #[Groups([self::GROUP_BOOK_READ])]
+    #[Groups([self::GROUP_BOOK_READ, Product::GROUP_READ])]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s'])]
     private ?\DateTime $dateUpdated = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
-    #[Groups([self::GROUP_BOOK_READ])]
+    #[Groups([self::GROUP_BOOK_READ, Product::GROUP_READ])]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s'])]
     private ?\DateTime $dateCreated = null;
 
     #[ORM\OneToOne(targetEntity: BookUserData::class, mappedBy: 'book')]
@@ -515,5 +520,12 @@ class Book implements UserAwareInterface
         $this->bookUserData = $bookUserData;
 
         return $this;
+    }
+
+    #[Groups([self::GROUP_BOOK_READ, Product::GROUP_READ])]
+    #[SerializedName('author')]
+    public function getAuthor(): string
+    {
+        return $this->getBookAuthor() ? $this->getBookAuthor()->getFullName() : '';
     }
 }

@@ -64,13 +64,16 @@ final readonly class ConfigSubscriber implements EventSubscriberInterface
 
         $response = $event->getResponse();
 
-        if (!str_contains($response->headers->get('Content-Type'), 'application/ld+json')) {
+        if (!$response->headers->get('Content-Type')
+            || !str_contains($response->headers->get('Content-Type'), 'application/ld+json')
+        ) {
             return;
         }
 
         $data = json_decode($response->getContent(), true) ?? [];
 
-        $data['config'] = [
+        $data['data'] ??= [];
+        $data['data']['config'] = [
             'processed_at' => date('Y-m-d H:i:s'),
             'source_product_types' => $this->sourceProductTypesCacheProvider->get(),
             'book_binding_types' => $this->bindingTypesCacheProvider->get(),

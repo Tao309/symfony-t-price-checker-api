@@ -14,7 +14,9 @@ use App\Repository\SourceProductUserDataRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 #[ORM\Entity(repositoryClass: SourceProductUserDataRepository::class)]
 #[ORM\UniqueConstraint(name: 'spud_source_product_user', columns: ['source_product_id', 'user_created_id'])]
@@ -64,10 +66,12 @@ class SourceProductUserData
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Product::GROUP_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s'])]
     private ?\DateTime $dateUpdated = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Product::GROUP_READ, SourceProduct::GROUP_SOURCE_PRODUCT_READ])]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s'])]
     private ?\DateTime $dateCreated = null;
 
     public function getSourceProduct(): ?SourceProduct
