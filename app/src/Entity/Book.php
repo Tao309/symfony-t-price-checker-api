@@ -241,7 +241,6 @@ class Book implements UserAwareInterface
 
     #[ORM\Column(length: 20, nullable: true)]
     #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_READ])]
-    #[Assert\Positive(groups: [self::GROUP_BOOK_WRITE])]
     private ?string $size = null;
 
     #[ORM\Column(type: Types::SMALLINT)]
