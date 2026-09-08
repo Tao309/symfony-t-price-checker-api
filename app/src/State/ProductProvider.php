@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\State\ProviderInterface;
 use App\Entity\Product;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -80,6 +81,10 @@ final readonly class ProductProvider implements ProviderInterface
              * @var Product $result
              */
             $result = $this->itemProvider->provide($operation, $uriVariables, $context);
+
+            if (!$result) {
+                throw new EntityNotFoundException('Product not found');
+            }
 
             $this->filterPricesAndStocks($result);
 

@@ -139,6 +139,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             ),
             normalizationContext: ['groups' => [self::GROUP_BOOK_READ]],
             denormalizationContext: ['groups' => [self::GROUP_BOOK_WRITE]],
+            validationContext: ['groups' => [self::GROUP_BOOK_WRITE]],
             processor: WrapEntityProcessor::class,
         ),
         new Post(
@@ -303,7 +304,7 @@ class Book implements UserAwareInterface
 
     #[ORM\OneToOne(targetEntity: BookUserData::class, mappedBy: 'book')]
     #[MaxDepth(1)]
-    #[Groups([Product::GROUP_READ])]
+    #[Groups([self::GROUP_BOOK_READ, Product::GROUP_READ])]
     private ?BookUserData $bookUserData = null;
 
     public function getTitle(): ?string
