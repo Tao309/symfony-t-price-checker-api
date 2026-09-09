@@ -19,9 +19,10 @@ use App\Entity\Trait\IdentifierTrait;
 use App\Entity\Trait\UserAwareTrait;
 use App\Repository\BookRepository;
 use App\State\BooksSearchProvider;
-use App\State\WrapEntityProcessor;
+use App\State\SaveBookProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\MaxDepth;
@@ -31,6 +32,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
 #[ORM\Table(options: ['comment' => 'Книги'])]
+#[UniqueEntity(fields: ['isbn'], message: 'Book с таким isbn уже существует', ignoreNull: true)]
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource(
     operations: [
@@ -101,8 +103,10 @@ use Symfony\Component\Validator\Constraints as Assert;
                 summary: 'Создать книгу',
             ),
             normalizationContext: ['groups' => [self::GROUP_BOOK_READ]],
-            denormalizationContext: ['groups' => [self::GROUP_BOOK_WRITE]],
-            processor: WrapEntityProcessor::class,
+            denormalizationContext: ['groups' => [self::GROUP_CREATE, BookUserData::GROUP_CREATE]],
+            validationContext: ['groups' => [self::GROUP_CREATE]],
+            name: self::ACTION_CREATE,
+            processor: SaveBookProcessor::class,
         ),
         new Patch(
             inputFormats: ['json' => ['application/json']],
@@ -138,9 +142,10 @@ use Symfony\Component\Validator\Constraints as Assert;
                 summary: 'Обновить книгу',
             ),
             normalizationContext: ['groups' => [self::GROUP_BOOK_READ]],
-            denormalizationContext: ['groups' => [self::GROUP_BOOK_WRITE]],
-            validationContext: ['groups' => [self::GROUP_BOOK_WRITE]],
-            processor: WrapEntityProcessor::class,
+            denormalizationContext: ['groups' => [self::GROUP_UPDATE, BookUserData::GROUP_UPDATE]],
+            validationContext: ['groups' => [self::GROUP_UPDATE]],
+            name: self::ACTION_UPDATE,
+            processor: SaveBookProcessor::class,
         ),
         new Post(
             uriTemplate: '/books/link/{productId}/{bookId}',
@@ -202,7 +207,11 @@ class Book implements UserAwareInterface
     use UserAwareTrait;
 
     public const string GROUP_BOOK_READ = 'book:read';
-    public const string GROUP_BOOK_WRITE = 'book:write';
+    public const string GROUP_CREATE = 'book:write:create';
+    public const string GROUP_UPDATE = 'book:write:update';
+
+    public const string ACTION_CREATE = 'book.create';
+    public const string ACTION_UPDATE = 'book.update';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -211,79 +220,80 @@ class Book implements UserAwareInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_READ, BookAuthor::GROUP_BOOK_AUTHOR_READ])]
-    #[Assert\NotNull(groups: [self::GROUP_BOOK_WRITE])]
-    #[Assert\Length(min: 5, max: 255, groups: [self::GROUP_BOOK_WRITE])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_CREATE, self::GROUP_UPDATE, Product::GROUP_READ,
+        BookAuthor::GROUP_BOOK_AUTHOR_READ])]
+    #[Assert\NotNull(groups: [self::GROUP_CREATE, self::GROUP_UPDATE])]
+    #[Assert\Length(min: 5, max: 255, groups: [self::GROUP_CREATE, self::GROUP_UPDATE])]
     private ?string $title = null;
 
     #[ORM\ManyToOne(inversedBy: 'books')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_READ])]
-    #[Assert\NotNull(groups: [self::GROUP_BOOK_WRITE])]
+    #[Groups([self::GROUP_BOOK_READ, Product::GROUP_READ, self::GROUP_CREATE, self::GROUP_UPDATE])]
+    #[Assert\NotNull(groups: [self::GROUP_CREATE, self::GROUP_UPDATE])]
     private ?BookAuthor $bookAuthor = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_READ])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_CREATE, self::GROUP_UPDATE, Product::GROUP_READ])]
     private ?string $originalTitle = null;
 
-    #[ORM\Column(length: 30, nullable: true)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_READ])]
-    #[Assert\Length(max: 20, groups: [self::GROUP_BOOK_WRITE])]
+    #[ORM\Column(length: 30, unique: true, nullable: true)]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_CREATE, self::GROUP_UPDATE, Product::GROUP_READ])]
+    #[Assert\Length(max: 20, groups: [self::GROUP_CREATE, self::GROUP_UPDATE])]
     private ?string $isbn = null;
 
     #[ORM\Column(type: Types::SMALLINT, nullable: true)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_READ])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_CREATE, self::GROUP_UPDATE, Product::GROUP_READ])]
     private ?int $pages = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_READ])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_CREATE, self::GROUP_UPDATE, Product::GROUP_READ])]
     private ?int $circulation = null;
 
     #[ORM\Column(length: 20, nullable: true)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_READ])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_CREATE, self::GROUP_UPDATE, Product::GROUP_READ])]
     private ?string $size = null;
 
     #[ORM\Column(type: Types::SMALLINT)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_READ])]
-    #[Assert\Positive(groups: [self::GROUP_BOOK_WRITE])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_CREATE, self::GROUP_UPDATE, Product::GROUP_READ])]
+    #[Assert\Positive(groups: [self::GROUP_CREATE, self::GROUP_UPDATE])]
     private ?int $publishYear = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(targetEntity: BookBindingType::class, cascade: ['persist', 'refresh'])]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_READ])]
-    #[Assert\NotNull(groups: [self::GROUP_BOOK_WRITE])]
+    #[Groups([self::GROUP_BOOK_READ, Product::GROUP_READ, self::GROUP_CREATE, self::GROUP_UPDATE])]
+    #[Assert\NotNull(groups: [self::GROUP_CREATE, self::GROUP_UPDATE])]
     private ?BookBindingType $bindingType = null;
 
-    #[ORM\ManyToOne]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_READ])]
+    #[ORM\ManyToOne(targetEntity: BookPublishingHouse::class, cascade: ['persist', 'refresh'])]
+    #[Groups([self::GROUP_BOOK_READ, Product::GROUP_READ, self::GROUP_CREATE, self::GROUP_UPDATE])]
     private ?BookPublishingHouse $publishingHouse = null;
 
-    #[ORM\ManyToOne]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_READ])]
+    #[ORM\ManyToOne(targetEntity: BookPublishingBrand::class, cascade: ['persist', 'refresh'])]
+    #[Groups([self::GROUP_BOOK_READ,  Product::GROUP_READ, self::GROUP_CREATE, self::GROUP_UPDATE])]
     private ?BookPublishingBrand $publishingBrand = null;
 
-    #[ORM\ManyToOne]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_READ])]
+    #[ORM\ManyToOne(targetEntity: BookSeries::class, cascade: ['persist', 'refresh'])]
+    #[Groups([self::GROUP_BOOK_READ, Product::GROUP_READ, self::GROUP_CREATE, self::GROUP_UPDATE])]
     private ?BookSeries $bookSeries = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_READ])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_CREATE, self::GROUP_UPDATE, Product::GROUP_READ])]
     private ?string $livelibId = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_READ])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_CREATE, self::GROUP_UPDATE, Product::GROUP_READ])]
     private ?string $goodreadsId = null;
 
     #[ORM\Column(length: 100, nullable: true)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_READ])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_CREATE, self::GROUP_UPDATE, Product::GROUP_READ])]
     private ?string $fantlabId = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_READ])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_CREATE, self::GROUP_UPDATE, Product::GROUP_READ])]
     private ?float $livelibRating = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_READ])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_CREATE, self::GROUP_UPDATE, Product::GROUP_READ])]
     private ?float $goodreadsRating = null;
 
     #[ORM\ManyToOne]
@@ -301,9 +311,10 @@ class Book implements UserAwareInterface
     #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s'])]
     private ?\DateTime $dateCreated = null;
 
-    #[ORM\OneToOne(targetEntity: BookUserData::class, mappedBy: 'book')]
+    #[ORM\OneToOne(targetEntity: BookUserData::class, mappedBy: 'book', cascade: ['persist', 'refresh'])]
     #[MaxDepth(1)]
-    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_READ])]
+    #[Groups([self::GROUP_BOOK_READ, Product::GROUP_READ, BookUserData::GROUP_CREATE, BookUserData::GROUP_UPDATE])]
+    #[Assert\NotBlank(groups: [self::GROUP_CREATE, self::GROUP_UPDATE])]
     private ?BookUserData $bookUserData = null;
 
     public function getTitle(): ?string

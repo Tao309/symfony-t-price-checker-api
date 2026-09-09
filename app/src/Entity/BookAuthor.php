@@ -14,8 +14,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\MaxDepth;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 #[ORM\Entity(repositoryClass: BookAuthorRepository::class)]
 #[ORM\Table(options: ['comment' => 'Автор книги'])]
@@ -51,23 +53,25 @@ class BookAuthor
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_READ])]
+    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_READ, Book::GROUP_CREATE, Book::GROUP_UPDATE])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups([Book::GROUP_BOOK_READ, Book::GROUP_BOOK_WRITE, Product::GROUP_READ])]
+    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_READ, self::GROUP_BOOK_AUTHOR_WRITE])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups([Book::GROUP_BOOK_READ, Book::GROUP_BOOK_WRITE, Product::GROUP_READ])]
+    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_READ, self::GROUP_BOOK_AUTHOR_WRITE])]
     private ?string $lastName = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_READ])]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s'])]
     private ?\DateTime $dateUpdated = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]
     #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_READ])]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s'])]
     private ?\DateTime $dateCreated = null;
 
     /**

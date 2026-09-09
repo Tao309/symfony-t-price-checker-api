@@ -34,11 +34,11 @@ class BookBindingType
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_READ])]
+    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_READ, Book::GROUP_CREATE, Book::GROUP_UPDATE])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups([Book::GROUP_BOOK_READ, Book::GROUP_BOOK_WRITE, Product::GROUP_READ])]
+    #[Groups([Book::GROUP_BOOK_READ, Product::GROUP_READ])]
     private ?string $label = null;
 
     public function getLabel(): ?string

@@ -46,27 +46,31 @@ class BookUserData
     use DateUpdatedTimestampTrait;
     use UserAwareTrait;
 
+    public const string GROUP_CREATE = 'book_user_data:write:create';
+    public const string GROUP_UPDATE = 'book_user_data:write:update';
+
     #[ORM\Id]
     #[ApiProperty(identifier: true)]
     #[ORM\OneToOne(targetEntity: Book::class, inversedBy: 'bookUserData')]
+    #[ORM\JoinColumn(name: 'book_id', referencedColumnName: 'id', nullable: false)]
     private ?Book $book;
 
     #[ORM\Id]
     #[ApiProperty(identifier: true)]
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\OneToOne]
+    #[ORM\JoinColumn(name: 'user_created_id', referencedColumnName: 'id', nullable: false)]
     private ?User $userCreated;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE, nullable: true)]
-    #[Groups([Product::GROUP_READ, Book::GROUP_BOOK_READ, Book::GROUP_BOOK_WRITE])]
+    #[Groups([Product::GROUP_READ, Book::GROUP_BOOK_READ, self::GROUP_CREATE, self::GROUP_UPDATE])]
     private ?\DateTime $releaseDate = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups([Product::GROUP_READ, Book::GROUP_BOOK_READ, Book::GROUP_BOOK_WRITE])]
+    #[Groups([Product::GROUP_READ, Book::GROUP_BOOK_READ, self::GROUP_CREATE, self::GROUP_UPDATE])]
     private ?int $listenPriceValue = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups([Product::GROUP_READ, Book::GROUP_BOOK_READ, Book::GROUP_BOOK_WRITE])]
+    #[Groups([Product::GROUP_READ, Book::GROUP_BOOK_READ, self::GROUP_CREATE, self::GROUP_UPDATE])]
     private ?string $comment = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]

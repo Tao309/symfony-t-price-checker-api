@@ -304,12 +304,12 @@ class Product implements UserAwareInterface
     #[ORM\OneToOne(
         targetEntity: ProductUserData::class,
         mappedBy: 'product',
-        cascade: ['persist', 'refresh', 'detach', 'remove'],
+        cascade: ['persist', 'refresh'],
         orphanRemoval: true
     )]
     #[MaxDepth(1)]
     #[Groups([self::GROUP_READ, ProductUserData::GROUP_UPDATE, ProductUserData::GROUP_CREATE])]
-    #[Assert\NotBlank(groups: [self::GROUP_CREATE])]
+    #[Assert\NotBlank(groups: [self::GROUP_CREATE, self::GROUP_UPDATE])]
     private ?ProductUserData $productUserData = null;
 
     public function __construct()
