@@ -12,8 +12,10 @@ use App\Entity\Trait\DateCreatedTimestampTrait;
 use App\Entity\Trait\DateUpdatedTimestampTrait;
 use App\Entity\Trait\IdentifierTrait;
 use App\Repository\BookPublishingBrandRepository;
+use App\State\BookPublishingBrandProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
@@ -22,6 +24,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: BookPublishingBrandRepository::class)]
 #[ORM\Table(options: ['comment' => 'Издательский брэнд'])]
 #[ORM\HasLifecycleCallbacks]
+#[UniqueEntity(fields: ['name'], message: 'BookPublishingBrand с таким названием уже существует')]
 #[ApiResource(
     operations: [
         new Post(
@@ -29,6 +32,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 summary: 'Создать издательский брэнд',
             ),
             denormalizationContext: ['groups' => [self::GROUP_BPB_WRITE]],
+            processor: BookPublishingBrandProcessor::class,
         ),
         new Patch(
             requirements: ['id' => '\d+'],
@@ -36,6 +40,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 summary: 'Обновить издательский брэнд',
             ),
             denormalizationContext: ['groups' => [self::GROUP_BPB_WRITE]],
+            processor: BookPublishingBrandProcessor::class,
         ),
     ],
     order: ['id' => 'DESC'],

@@ -303,7 +303,7 @@ class Book implements UserAwareInterface
 
     #[ORM\OneToOne(targetEntity: BookUserData::class, mappedBy: 'book')]
     #[MaxDepth(1)]
-    #[Groups([self::GROUP_BOOK_READ, Product::GROUP_READ])]
+    #[Groups([self::GROUP_BOOK_READ, self::GROUP_BOOK_WRITE, Product::GROUP_READ])]
     private ?BookUserData $bookUserData = null;
 
     public function getTitle(): ?string

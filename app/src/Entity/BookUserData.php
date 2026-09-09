@@ -58,15 +58,15 @@ class BookUserData
     private ?User $userCreated;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE, nullable: true)]
-    #[Groups([Product::GROUP_READ, Book::GROUP_BOOK_READ])]
+    #[Groups([Product::GROUP_READ, Book::GROUP_BOOK_READ, Book::GROUP_BOOK_WRITE])]
     private ?\DateTime $releaseDate = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups([Product::GROUP_READ, Book::GROUP_BOOK_READ])]
+    #[Groups([Product::GROUP_READ, Book::GROUP_BOOK_READ, Book::GROUP_BOOK_WRITE])]
     private ?int $listenPriceValue = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups([Product::GROUP_READ, Book::GROUP_BOOK_READ])]
+    #[Groups([Product::GROUP_READ, Book::GROUP_BOOK_READ, Book::GROUP_BOOK_WRITE])]
     private ?string $comment = null;
 
     #[ORM\Column(type: Types::DATETIMETZ_MUTABLE)]

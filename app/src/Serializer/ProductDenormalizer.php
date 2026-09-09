@@ -49,7 +49,7 @@ final class ProductDenormalizer implements DenormalizerInterface, DenormalizerAw
         $isPatch = $operation instanceof Patch;
 
         $toSaveProductUserData = ($this->flags[ProductFlag::SaveProductUserData->value] ?? false)
-            && !empty($data['product_user_data']);
+            && !empty($data['productUserData']);
 
         if (!$toSaveProductUserData) {
             $removeGroup = $isPatch ? ProductUserData::GROUP_UPDATE : ProductUserData::GROUP_CREATE;
@@ -57,10 +57,10 @@ final class ProductDenormalizer implements DenormalizerInterface, DenormalizerAw
             $context['groups'] = array_values(array_diff($context['groups'], [$removeGroup]));
         }
 
-        $data['product_user_data']['user'] = $this->security->getUser()->getId();
+        $data['productUserData']['user'] = $this->security->getUser()->getId();
 
         if (!$this->isNew) {
-            $data['product_user_data']['product'] = $data['id'];
+            $data['productUserData']['product'] = $data['id'];
         }
 
         $data['shop'] = $this->iriConverter->getIriFromResource(

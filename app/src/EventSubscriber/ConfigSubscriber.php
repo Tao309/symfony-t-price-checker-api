@@ -101,7 +101,7 @@ final readonly class ConfigSubscriber implements EventSubscriberInterface
                 'update' => true,
                 'create' => true,
                 'limit_enabled' => false,
-                'limit' => null
+                'limit' => null,
             ],
             'book' => [
                 'update' => true,
@@ -109,13 +109,13 @@ final readonly class ConfigSubscriber implements EventSubscriberInterface
                 'limit' => null,
                 'add_publishing_house' => true,
                 'add_publishing_brand' => true,
-                'add_series' => true
+                'add_series' => true,
             ],
             'source_product' => [
                 'enabled' => true,
                 'create' => true,
                 'update' => true,
-                'limit' => null
+                'limit' => null,
             ],
             'shop' => [
                 'list' => [
@@ -123,9 +123,9 @@ final readonly class ConfigSubscriber implements EventSubscriberInterface
                     'wildberries',
                     'chitai-gorod',
                     'ffan',
-                    'knigofan'
-                ]
-            ]
+                    'knigofan',
+                ],
+            ],
         ];
     }
 }
